@@ -2,11 +2,65 @@
 import melee
 import argparse
 import signal
-import sys
-import os
+import shutil
+import sys, os, time
 
-#This example program demonstrates how to use the Melee API to run dolphin programatically,
-#   setup controllers, and send button presses over to dolphin
+cwd = os.path.realpath(os.path.curdir)
+framesaves = os.path.join(cwd, "saves")
+
+def parse_character(character):
+    if args.character == 'fox':
+        return melee.enums.Character.FOX
+    elif args.character == 'cptfalcon':
+        return melee.enums.Character.CPTFALCON
+    elif args.character == 'doc':
+        return melee.enums.Character.DOC
+    elif args.character == 'mario':
+        return melee.enums.Character.MARIO
+    elif args.character == 'luigi':
+        return melee.enums.Character.LUIGI
+    elif args.character == 'bowser':
+        return melee.enums.Character.BOWSER
+    elif args.character == 'peach':
+        return melee.enums.Character.PEACH
+    elif args.character == 'yoshi':
+        return melee.enums.Character.YOSHI
+    elif args.character == 'dk':
+        return melee.enums.Character.DK
+    elif args.character == 'ganondorf':
+        return melee.enums.Character.GANONDORF
+    elif args.character == 'falco':
+        return melee.enums.Character.FALCO
+    elif args.character == 'ness':
+        return melee.enums.Character.NESS
+    elif args.character == 'iceclimbers':
+        return melee.enums.Character.ICECLIMBERS
+    elif args.character == 'kirby':
+        return melee.enums.Character.KIRBY
+    elif args.character == 'zelda':
+        return melee.enums.Character.ZELDA
+    elif args.character == 'link':
+        return melee.enums.Character.LINK
+    elif args.character == 'ylink':
+        return melee.enums.Character.YLINK
+    elif args.character == 'pichu':
+        return melee.enums.Character.PICHU
+    elif args.character == 'pikachu':
+        return melee.enums.Character.PIKACHU
+    elif args.character == 'jigglypuff':
+        return melee.enums.Character.JIGGLYPUFF
+    elif args.character == 'mewtwo':
+        return melee.enums.Character.MEWTWO
+    elif args.character == 'gameandwatch':
+        return melee.enums.Character.GAMEANDWATCH
+    elif args.character == 'marth':
+        return melee.enums.Character.MARTH
+    elif args.character == 'roy':
+        return melee.enums.Character.ROY
+    elif args.character == 'sheik':
+        return melee.enums.Character.SHEIK
+    else:
+        return melee.enums.Character.FOX
 
 def check_port(value):
     ivalue = int(value)
@@ -14,8 +68,6 @@ def check_port(value):
          raise argparse.ArgumentTypeError("%s is an invalid controller port. \
          Must be 1, 2, 3, or 4." % value)
     return ivalue
-
-chain = None
 
 parser = argparse.ArgumentParser(description='Example of libmelee in action')
 parser.add_argument('--port', '-p', type=check_port,
@@ -75,6 +127,13 @@ def signal_handler(signal, frame):
     print("Shutting down cleanly...")
     if args.framerecord:
         framedata.saverecording()
+        # organize our data
+        now = time.strftime('%Y\-%m\-%d_%H\-%M\-%S')
+        directory = os.path.join(framesaves, args.character, now)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        shutil.move("framedata.csv", os.path.join(directory))
+        shutil.move("actiondata.csv", os.path.join(directory))
     sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
@@ -82,7 +141,7 @@ signal.signal(signal.SIGINT, signal_handler)
 #Run dolphin and render the output
 dolphin.run(render=True)
 
-#Plug our controller in
+# Plug our controller in
 #   Due to how named pipes work, this has to come AFTER running dolphin
 #   NOTE: If you're loading a movie file, don't connect the controller,
 #   dolphin will hang waiting for input and never receive it
@@ -99,10 +158,8 @@ while True:
     if gamestate.menu_state == melee.enums.Menu.IN_GAME:
         if args.framerecord:
             framedata.recordframe(gamestate)
-        #XXX: This is where your AI does all of its stuff!
-        #This line will get hit once per frame, so here is where you read
-        #   in the gamestate and decide what buttons to push on the controller
-        #   i.e. the trained neural network
+
+        # This is where your AI does all of its stuff!
         if args.framerecord and args.ai:
             melee.techskill.upsmashes(ai_state=gamestate.ai_state, controller=controller)
         else:
@@ -110,7 +167,7 @@ while True:
     #If we're at the character select screen, choose our character
     elif gamestate.menu_state == melee.enums.Menu.CHARACTER_SELECT:
         melee.menuhelper.choosecharacter(character=character,
-            gamestate=gamestate, controller=controller, swag=True, start=True)
+            gamestate=gamestate, controller=controller, swag=True, start=False)
     #If we're at the postgame scores screen, spam START
     elif gamestate.menu_state == melee.enums.Menu.POSTGAME_SCORES:
         melee.menuhelper.skippostgame(controller=controller)
@@ -123,57 +180,3 @@ while True:
     if log:
         log.logframe(gamestate)
         log.writeframe()
-
-def parse_character(character):
-    if args.character == 'fox':
-        return melee.enums.Character.FOX
-    elif args.character == 'cptfalcon':
-        return melee.enums.Character.CPTFALCON
-    elif args.character == 'doc':
-        return melee.enums.Character.DOC
-    elif args.character == 'mario':
-        return melee.enums.Character.MARIO
-    elif args.character == 'luigi':
-        return melee.enums.Character.LUIGI
-    elif args.character == 'bowser':
-        return melee.enums.Character.BOWSER
-    elif args.character == 'peach':
-        return melee.enums.Character.PEACH
-    elif args.character == 'yoshi':
-        return melee.enums.Character.YOSHI
-    elif args.character == 'dk':
-        return melee.enums.Character.DK
-    elif args.character == 'ganondorf':
-        return melee.enums.Character.GANONDORF
-    elif args.character == 'falco':
-        return melee.enums.Character.FALCO
-    elif args.character == 'ness':
-        return melee.enums.Character.NESS
-    elif args.character == 'iceclimbers':
-        return melee.enums.Character.ICECLIMBERS
-    elif args.character == 'kirby':
-        return melee.enums.Character.KIRBY
-    elif args.character == 'zelda':
-        return melee.enums.Character.ZELDA
-    elif args.character == 'link':
-        return melee.enums.Character.LINK
-    elif args.character == 'ylink':
-        return melee.enums.Character.YLINK
-    elif args.character == 'pichu':
-        return melee.enums.Character.PICHU
-    elif args.character == 'pikachu':
-        return melee.enums.Character.PIKACHU
-    elif args.character == 'jigglypuff':
-        return melee.enums.Character.JIGGLYPUFF
-    elif args.character == 'mewtwo':
-        return melee.enums.Character.MEWTWO
-    elif args.character == 'gameandwatch':
-        return melee.enums.Character.GAMEANDWATCH
-    elif args.character == 'marth':
-        return melee.enums.Character.MARTH
-    elif args.character == 'roy':
-        return melee.enums.Character.ROY
-    elif args.character == 'sheik':
-        return melee.enums.Character.SHEIK
-    else:
-        return melee.enums.Character.FOX
