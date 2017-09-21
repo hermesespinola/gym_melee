@@ -41,12 +41,7 @@ parser.add_argument('--ai', '-a', action='store_true',
 
 args = parser.parse_args()
 
-if args.character == 'fox':
-    character = melee.enums.Character.FOX
-elif args.character == 'cptfalcon':
-    character = melee.enums.Character.CPTFALCON
-else:
-    character = melee.enums.Character.FOX
+character = parse_character(args.character)
 
 log = None
 if args.debug:
@@ -128,3 +123,57 @@ while True:
     if log:
         log.logframe(gamestate)
         log.writeframe()
+
+def parse_character(character):
+    if args.character == 'fox':
+        return melee.enums.Character.FOX
+    elif args.character == 'cptfalcon':
+        return melee.enums.Character.CPTFALCON
+    elif args.character == 'doc':
+        return melee.enums.Character.DOC
+    elif args.character == 'mario':
+        return melee.enums.Character.MARIO
+    elif args.character == 'luigi':
+        return melee.enums.Character.LUIGI
+    elif args.character == 'bowser':
+        return melee.enums.Character.BOWSER
+    elif args.character == 'peach':
+        return melee.enums.Character.PEACH
+    elif args.character == 'yoshi':
+        return melee.enums.Character.YOSHI
+    elif args.character == 'dk':
+        return melee.enums.Character.DK
+    elif args.character == 'ganondorf':
+        return melee.enums.Character.GANONDORF
+    elif args.character == 'falco':
+        return melee.enums.Character.FALCO
+    elif args.character == 'ness':
+        return melee.enums.Character.NESS
+    elif args.character == 'iceclimbers':
+        return melee.enums.Character.ICECLIMBERS
+    elif args.character == 'kirby':
+        return melee.enums.Character.KIRBY
+    elif args.character == 'zelda':
+        return melee.enums.Character.ZELDA
+    elif args.character == 'link':
+        return melee.enums.Character.LINK
+    elif args.character == 'ylink':
+        return melee.enums.Character.YLINK
+    elif args.character == 'pichu':
+        return melee.enums.Character.PICHU
+    elif args.character == 'pikachu':
+        return melee.enums.Character.PIKACHU
+    elif args.character == 'jigglypuff':
+        return melee.enums.Character.JIGGLYPUFF
+    elif args.character == 'mewtwo':
+        return melee.enums.Character.MEWTWO
+    elif args.character == 'gameandwatch':
+        return melee.enums.Character.GAMEANDWATCH
+    elif args.character == 'marth':
+        return melee.enums.Character.MARTH
+    elif args.character == 'roy':
+        return melee.enums.Character.ROY
+    elif args.character == 'sheik':
+        return melee.enums.Character.SHEIK
+    else:
+        return melee.enums.Character.FOX
