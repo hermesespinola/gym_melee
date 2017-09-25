@@ -9,58 +9,78 @@ cwd = os.path.realpath(os.path.curdir)
 framesaves = os.path.join(cwd, "saves")
 
 def parse_character(character):
-    if args.character == 'fox':
+    _character = "".join(character.split('_')).lower()
+    if _character == 'fox' or _character == 'hack':
         return melee.enums.Character.FOX
-    elif args.character == 'cptfalcon':
+    elif _character == 'cptfalcon' or _character == 'falcon' or _character == 'captainfalcon':
         return melee.enums.Character.CPTFALCON
-    elif args.character == 'doc':
+    elif _character == 'doc' or _character == 'doctor' or _character == 'doctormario':
         return melee.enums.Character.DOC
-    elif args.character == 'mario':
+    elif _character == 'mario':
         return melee.enums.Character.MARIO
-    elif args.character == 'luigi':
+    elif _character == 'luigi':
         return melee.enums.Character.LUIGI
-    elif args.character == 'bowser':
+    elif _character == 'bowser':
         return melee.enums.Character.BOWSER
-    elif args.character == 'peach':
+    elif _character == 'peach':
         return melee.enums.Character.PEACH
-    elif args.character == 'yoshi':
+    elif _character == 'yoshi':
         return melee.enums.Character.YOSHI
-    elif args.character == 'dk':
+    elif _character == 'dk' or _character == 'donkeykong':
         return melee.enums.Character.DK
-    elif args.character == 'ganondorf':
+    elif _character == 'ganondorf':
         return melee.enums.Character.GANONDORF
-    elif args.character == 'falco':
+    elif _character == 'falco':
         return melee.enums.Character.FALCO
-    elif args.character == 'ness':
+    elif _character == 'ness':
         return melee.enums.Character.NESS
-    elif args.character == 'iceclimbers':
+    elif _character == 'iceclimbers':
         return melee.enums.Character.ICECLIMBERS
-    elif args.character == 'kirby':
+    elif _character == 'kirby':
         return melee.enums.Character.KIRBY
-    elif args.character == 'zelda':
+    elif _character == 'zelda':
         return melee.enums.Character.ZELDA
-    elif args.character == 'link':
+    elif _character == 'link':
         return melee.enums.Character.LINK
-    elif args.character == 'ylink':
+    elif _character == 'ylink' or _character == 'younglink':
         return melee.enums.Character.YLINK
-    elif args.character == 'pichu':
+    elif _character == 'pichu':
         return melee.enums.Character.PICHU
-    elif args.character == 'pikachu':
+    elif _character == 'pikachu':
         return melee.enums.Character.PIKACHU
-    elif args.character == 'jigglypuff':
+    elif _character == 'jigglypuff':
         return melee.enums.Character.JIGGLYPUFF
-    elif args.character == 'mewtwo':
+    elif _character == 'mewtwo':
         return melee.enums.Character.MEWTWO
-    elif args.character == 'gameandwatch':
+    elif _character == 'gameandwatch':
         return melee.enums.Character.GAMEANDWATCH
-    elif args.character == 'marth':
+    elif _character == 'marth':
         return melee.enums.Character.MARTH
-    elif args.character == 'roy':
+    elif _character == 'roy':
         return melee.enums.Character.ROY
-    elif args.character == 'sheik':
+    elif _character == 'sheik':
         return melee.enums.Character.SHEIK
     else:
+        print('Unrecognized character, using Fox')
         return melee.enums.Character.FOX
+
+def parse_stage(stage):
+    _stage = "".join(stage.split('_')).lower()
+    if _stage == 'battlefield':
+        return melee.enums.Stage.BATTLEFIELD
+    elif _stage == 'finaldestination' or _stage == 'final' or _stage == 'destination':
+        return melee.enums.Stage.FINAL_DESTINATION
+    elif _stage == 'pokemonstadium' or _stage == 'pokemon' or _stage == 'stadium':
+        return melee.enums.Stage.POKEMON_STADIUM
+    elif _stage == 'dreamland':
+        return melee.enums.Stage.DREAMLAND
+    elif _stage == 'fountain' or _stage == 'fountainofdreams':
+        return melee.enums.Stage.FOUNTAIN_OF_DREAMS
+    elif _stage == 'yoshisstory' or _stage == 'yoshis' or _stage == 'story':
+        return melee.enums.Stage.YOSHIS_STORY
+    else:
+        print('Unrecognized stage, using Battlefield')
+        return melee.enums.Stage.BATTLEFIELD
 
 def check_port(value):
     ivalue = int(value)
@@ -85,7 +105,7 @@ parser.add_argument('--framerecord', '-r', default=False, action='store_true',
                     help='Records frame data from the match, stores into framedata.csv')
 parser.add_argument('--character', '-c', default='fox',
                     help='The ai selected character')
-parser.add_argument('--stage', '-s', default=melee.enums.Stage.BATTLEFIELD,
+parser.add_argument('--stage', '-s', default='battlefield',
                     help='The selected stage')
 parser.add_argument('--ai', '-a', action='store_true',
                     help='Run ai')
@@ -94,6 +114,7 @@ parser.add_argument('--ai', '-a', action='store_true',
 args = parser.parse_args()
 
 character = parse_character(args.character)
+stage = parse_stage(args.stage)
 
 log = None
 if args.debug:
@@ -173,7 +194,7 @@ while True:
         melee.menuhelper.skippostgame(controller=controller)
     #If we're at the stage select screen, choose a stage
     elif gamestate.menu_state == melee.enums.Menu.STAGE_SELECT:
-        melee.menuhelper.choosestage(stage=args.stage,
+        melee.menuhelper.choosestage(stage=stage,
             gamestate=gamestate, controller=controller)
     #Flush any button presses queued up
     controller.flush()
