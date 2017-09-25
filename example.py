@@ -1,9 +1,7 @@
 #!/usr/bin/python3
-import melee
-import argparse
-import signal
-import shutil
+import signal, shutil, argparse
 import sys, os, time
+import melee
 
 cwd = os.path.realpath(os.path.curdir)
 framesaves = os.path.join(cwd, "saves")
@@ -122,7 +120,7 @@ if args.debug:
 
 framedata = melee.framedata.FrameData(args.framerecord)
 
-#Options here are:
+# Options here are:
 #   "Standard" input is what dolphin calls the type of input that we use
 #       for named pipe (bot) input
 #   GCN_ADAPTER will use your WiiU adapter for live human-controlled play
@@ -134,9 +132,9 @@ if args.live:
 # Create our Dolphin object. This will be the primary object that we will interface with
 dolphin = melee.dolphin.Dolphin(ai_port=args.port, opponent_port=args.opponent,
     opponent_type=opponent_type, logger=log)
-#Create our GameState object for the dolphin instance
+# Create our GameState object for the dolphin instance
 gamestate = melee.gamestate.GameState(dolphin)
-#Create our Controller object that we can press buttons on
+# Create our Controller object that we can press buttons on
 controller = melee.controller.Controller(port=args.port, dolphin=dolphin)
 
 def signal_handler(signal, frame):
@@ -159,23 +157,23 @@ def signal_handler(signal, frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 
-#Run dolphin and render the output
+# Run dolphin and render the output
 dolphin.run(render=True)
 
 # Plug our controller in
 #   Due to how named pipes work, this has to come AFTER running dolphin
-#   NOTE: If you're loading a movie file, don't connect the controller,
-#   dolphin will hang waiting for input and never receive it
-controller.connect()
+print (args.ai)
+if args.ai:
+    controller.connect()
 
-#Main loop
+# Main loop
 while True:
-    #"step" to the next frame
+    # step to the next frame
     gamestate.step()
     if(gamestate.processingtime * 1000 > 12):
         print("WARNING: Last frame took " + str(gamestate.processingtime*1000) + "ms to process.")
 
-    #What menu are we in?
+    # What menu are we in?
     if gamestate.menu_state == melee.enums.Menu.IN_GAME:
         if args.framerecord:
             framedata.recordframe(gamestate)
@@ -185,18 +183,20 @@ while True:
             melee.techskill.upsmashes(ai_state=gamestate.ai_state, controller=controller)
         else:
             melee.techskill.multishine(ai_state=gamestate.ai_state, controller=controller)
-    #If we're at the character select screen, choose our character
+    # If we're at the character select screen, choose our character
     elif gamestate.menu_state == melee.enums.Menu.CHARACTER_SELECT:
         melee.menuhelper.choosecharacter(character=character,
             gamestate=gamestate, controller=controller, swag=True, start=False)
-    #If we're at the postgame scores screen, spam START
+    # If we're at the postgame scores screen, spam START
     elif gamestate.menu_state == melee.enums.Menu.POSTGAME_SCORES:
         melee.menuhelper.skippostgame(controller=controller)
-    #If we're at the stage select screen, choose a stage
+        # Send a Ctrl-C signal to shut down the program
+        os.kill(os.getpid(), signal.SIGINT)
+    # If we're at the stage select screen, choose a stage
     elif gamestate.menu_state == melee.enums.Menu.STAGE_SELECT:
         melee.menuhelper.choosestage(stage=stage,
             gamestate=gamestate, controller=controller)
-    #Flush any button presses queued up
+    # Flush any button presses queued up
     controller.flush()
     if log:
         log.logframe(gamestate)
