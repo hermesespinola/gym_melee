@@ -103,3 +103,4 @@ ENV/
 *.iso
 .idea/
 dolphin/
+Logs/

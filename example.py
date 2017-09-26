@@ -144,15 +144,22 @@ def signal_handler(signal, frame):
         print("") #because the ^C will be on the terminal
         print("Log file created: " + log.filename)
     print("Shutting down cleanly...")
+
     if args.framerecord:
         framedata.saverecording()
-        # organize our data
-        now = time.strftime('%Y\-%m\-%d_%H\-%M\-%S')
-        directory = os.path.join(framesaves, args.character, now)
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-        shutil.move("framedata.csv", os.path.join(directory))
-        shutil.move("actiondata.csv", os.path.join(directory))
+        # Delete the empty frame data if there was no game
+        with open("framedata.csv", 'r') as f:
+            if sum(1 for _ in f) > 1:
+                # organize our data
+                now = time.strftime('%Y\-%m\-%d_%H\-%M\-%S')
+                directory = os.path.join(framesaves, args.character, now)
+                if not os.path.exists(directory):
+                    os.makedirs(directory)
+                shutil.move("framedata.csv", os.path.join(directory))
+                shutil.move("actiondata.csv", os.path.join(directory))
+            else:
+                os.remove("framedata.csv")
+                os.remove("actiondata.csv")
     sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
