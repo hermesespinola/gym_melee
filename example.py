@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import signal, shutil, argparse
 import sys, os, time
-import melee
+import melee, deep_smash
 
 cwd = os.path.realpath(os.path.curdir)
 framesaves = os.path.join(cwd, "saves")
@@ -94,9 +94,8 @@ parser.add_argument('--port', '-p', type=check_port,
 parser.add_argument('--opponent', '-o', type=check_port,
                     help='The controller port the opponent will play on',
                     default=1)
-parser.add_argument('--live', '-l',
-                    help='The opponent is playing live with a GCN Adapter',
-                    default=True)
+parser.add_argument('--live', '-l', action='store_true',
+                    help='The opponent is playing live with a GCN Adapter')
 parser.add_argument('--debug', '-d', action='store_true',
                     help='Debug mode. Creates a CSV of all game state')
 parser.add_argument('--framerecord', '-r', default=False, action='store_true',
@@ -106,7 +105,8 @@ parser.add_argument('--character', '-c', default='fox',
 parser.add_argument('--stage', '-s', default='battlefield',
                     help='The selected stage')
 parser.add_argument('--ai', '-a', action='store_true',
-                    help='Run ai')
+                    help='Run AI')
+
 
 
 args = parser.parse_args()
@@ -125,9 +125,9 @@ framedata = melee.framedata.FrameData(args.framerecord)
 #       for named pipe (bot) input
 #   GCN_ADAPTER will use your WiiU adapter for live human-controlled play
 #   UNPLUGGED is pretty obvious what it means
+print (args.live)
 opponent_type = melee.enums.ControllerType.UNPLUGGED
-if args.live:
-    opponent_type = melee.enums.ControllerType.GCN_ADAPTER
+opponent_type = melee.enums.ControllerType.GCN_ADAPTER if args.live else melee.enums.ControllerType.STANDARD
 
 # Create our Dolphin object. This will be the primary object that we will interface with
 dolphin = melee.dolphin.Dolphin(ai_port=args.port, opponent_port=args.opponent,
@@ -169,11 +169,12 @@ dolphin.run(render=True)
 
 # Plug our controller in
 #   Due to how named pipes work, this has to come AFTER running dolphin
-print (args.ai)
 if args.ai:
     controller.connect()
 
-# Main loop
+# The ai player
+player = deep_smash.Player(gamestate, controller)
+# Game loop
 while True:
     # step to the next frame
     gamestate.step()
@@ -186,14 +187,14 @@ while True:
             framedata.recordframe(gamestate)
 
         # This is where your AI does all of its stuff!
-        if args.framerecord and args.ai:
-            melee.techskill.upsmashes(ai_state=gamestate.ai_state, controller=controller)
-        else:
-            melee.techskill.multishine(ai_state=gamestate.ai_state, controller=controller)
+        print (args.ai)
+        if args.ai:
+            print("Something")
+            player.play()
     # If we're at the character select screen, choose our character
     elif gamestate.menu_state == melee.enums.Menu.CHARACTER_SELECT:
         melee.menuhelper.choosecharacter(character=character,
-            gamestate=gamestate, controller=controller, swag=True, start=False)
+            gamestate=gamestate, controller=controller, swag=True, start=True)
     # If we're at the postgame scores screen, spam START
     elif gamestate.menu_state == melee.enums.Menu.POSTGAME_SCORES:
         melee.menuhelper.skippostgame(controller=controller)
