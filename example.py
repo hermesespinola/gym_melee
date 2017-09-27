@@ -125,9 +125,7 @@ framedata = melee.framedata.FrameData(args.framerecord)
 #       for named pipe (bot) input
 #   GCN_ADAPTER will use your WiiU adapter for live human-controlled play
 #   UNPLUGGED is pretty obvious what it means
-print (args.live)
-opponent_type = melee.enums.ControllerType.UNPLUGGED
-opponent_type = melee.enums.ControllerType.GCN_ADAPTER if args.live else melee.enums.ControllerType.STANDARD
+opponent_type = melee.enums.ControllerType.GCN_ADAPTER if args.live else melee.enums.ControllerType.UNPLUGGED
 
 # Create our Dolphin object. This will be the primary object that we will interface with
 dolphin = melee.dolphin.Dolphin(ai_port=args.port, opponent_port=args.opponent,
@@ -149,7 +147,7 @@ def signal_handler(signal, frame):
         framedata.saverecording()
         # Delete the empty frame data if there was no game
         with open("framedata.csv", 'r') as f:
-            if sum(1 for _ in f) > 1:
+            if sum(1 for _ in f) > 2:
                 # organize our data
                 now = time.strftime('%Y\-%m\-%d_%H\-%M\-%S')
                 directory = os.path.join(framesaves, args.character, now)
@@ -165,7 +163,10 @@ def signal_handler(signal, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 # Run dolphin and render the output
-dolphin.run(render=True)
+if (args.live):
+    dolphin.run(render=True, iso_path='./Super\ Smash\ Bros.\ Melee\ \(v1.02\).iso')
+else:
+    dolphin.run(render=True)
 
 # Plug our controller in
 #   Due to how named pipes work, this has to come AFTER running dolphin
@@ -173,7 +174,7 @@ if args.ai:
     controller.connect()
 
 # The ai player
-player = deep_smash.Player(gamestate, controller)
+player = deep_smash.Player(gamestate, controller, log=True)
 # Game loop
 while True:
     # step to the next frame
@@ -187,9 +188,7 @@ while True:
             framedata.recordframe(gamestate)
 
         # This is where your AI does all of its stuff!
-        print (args.ai)
         if args.ai:
-            print("Something")
             player.play()
     # If we're at the character select screen, choose our character
     elif gamestate.menu_state == melee.enums.Menu.CHARACTER_SELECT:
