@@ -84,6 +84,8 @@ class Dolphin:
             config.set(section, 'Triggers/L-Analog', 'Axis L -+')
             config.set(section, 'Triggers/R-Analog', 'Axis R -+')
         #This section is unused if it's not a standard input (I think...)
+        elif controllertype == enums.ControllerType.PS4:
+            config.set(section, 'Device', 'evdev/0/Wireless Controller')
         else:
             config.set(section, 'Device', 'XInput2/0/Virtual core pointer')
 

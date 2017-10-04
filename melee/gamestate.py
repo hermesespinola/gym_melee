@@ -79,6 +79,7 @@ class GameState:
     def print_state(self):
         print ("distance:", self.distance)
         print ("stage:", self.stage.value)
+        print ("Projectiles:", list(map(lambda proj: proj.tolist(), self.projectiles)))
         print ("------ AI State -----")
         self.ai_state.print_state()
         print ("----- Opponent State -----")
@@ -567,8 +568,6 @@ class PlayerState:
         print ("Stock:", self.stock)
         print ("Facing:", self.facing)
         print ("Action:", self.action.value)
-        #We're... gonna leave this one out for now since it's a bit irrelevant
-        #thelist.append(self.action_counter)
         print ("Action Frame:", self.action_frame)
         print ("Invulnerable:", self.invulnerable)
         print ("Hitlag Left:", self.hitlag_frames_left)
@@ -576,7 +575,7 @@ class PlayerState:
         print ("Charging Smash:", self.charging_smash)
         print ("Jumps Left:", self.jumps_left)
         print ("On Ground:", self.on_ground)
-        #We're combining speeds here for simplicity's sake
+        # We're combining speeds here for simplicity's sake
         print ("Speed:", self.speed_air_x_self + self.speed_x_attack + self.speed_ground_x_self, \
                 self.speed_y_self + self.speed_y_attack)
         print ("Off Stage:", self.off_stage)

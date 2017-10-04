@@ -25,6 +25,8 @@ class ControllerType(Enum):
     STANDARD = "6"
     GCN_ADAPTER = "12"
     UNPLUGGED = "0"
+    XBOX = "2"
+    PS4 = "4"
 
 class AttackState(Enum):
     WINDUP = 0
