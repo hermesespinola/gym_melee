@@ -33,6 +33,7 @@ class PlayerDelta(object):
         else:
             self.percent = new_state.percent - prev_state.percent
         self.shield_reflect = (act == Action.SHIELD_REFLECT)
+        self.knee_bend = (act == Action.KNEE_BEND)
         self.falling = (act == Action.FALLING)
         self.falling_aerial = (act == Action.FALLING_AERIAL)
         self.dead_fall = (act == Action.DEAD_FALL)

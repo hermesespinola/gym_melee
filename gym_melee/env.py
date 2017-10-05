@@ -81,11 +81,14 @@ class MeleeEnv(object):
         if self.gamestate.menu_state == melee.enums.Menu.IN_GAME:
             self.framedata.recordframe(self.gamestate)
             self.deltastate.step()
-            watcher.take_action(self.gamestate, self.deltastate)
+            # TODO: add reward
+            watcher.take_action(self.deltastate)
         elif self.gamestate.menu_state == melee.enums.Menu.CHARACTER_SELECT:
             watcher.choose_character(self.gamestate)
         elif self.gamestate.menu_state == melee.enums.Menu.POSTGAME_SCORES:
-            watcher.handle_postgame(self.gamestate)
+            watcher.save_sat(self.gamestate)
+            # Send a Ctrl-C signal to shut down the program. asta la vista
+            os.kill(os.getpid(), signal.SIGINT)
 
         # If we're at the stage select screen, choose a stage
         elif self.gamestate.menu_state == melee.enums.Menu.STAGE_SELECT:
@@ -95,7 +98,7 @@ class MeleeEnv(object):
         if self.log:
             self.log.logframe(self.gamestate)
             self.log.writeframe()
-        return deltastate
+        return self.deltastate
 
     def set_ai_character(self, character):
         self.ai_character = character
@@ -119,8 +122,7 @@ def parse_stage(stage):
     elif _stage == 'yoshisstory' or _stage == 'yoshis' or _stage == 'story':
         return melee.enums.Stage.YOSHIS_STORY
     else:
-        if self.debug:
-            print('Unrecognized stage, using Battlefield')
+        print('Unrecognized stage, using Battlefield')
         return melee.enums.Stage.BATTLEFIELD
 
 def check_port(value):

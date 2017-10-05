@@ -34,7 +34,7 @@ player = gym_melee.RLPlayer(character, env.get_ai_controller(), debug=debug)
 # Game loop
 env.start('Super Smash Bros. Melee (v1.02).iso')
 while True:
-    dframe = env.step(player)
+    dframe = env.step(player).opponent
     # Debug this shit
     if dframe.dead:
         print("dead")

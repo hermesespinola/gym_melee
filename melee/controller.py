@@ -74,17 +74,18 @@ class Controller:
         self.press_shoulder(enums.Button.BUTTON_L, 0)
         self.press_shoulder(enums.Button.BUTTON_R, 0)
         #Press the right button
-        for item in enums.Button:
-            #Don't do anything for the main or c-stick
-            if item == enums.Button.BUTTON_MAIN:
-                continue
-            if item == enums.Button.BUTTON_C:
-                continue
-            #Press our button, release all others
-            if item == button:
-                self.press_button(item)
-            else:
-                self.release_button(item)
+        if button != None:
+            for item in enums.Button:
+                #Don't do anything for the main or c-stick
+                if item == enums.Button.BUTTON_MAIN:
+                    continue
+                if item == enums.Button.BUTTON_C:
+                    continue
+                #Press our button, release all others
+                if item == button:
+                    self.press_button(item)
+                else:
+                    self.release_button(item)
 
     def press_button(self, button):
         if not self.pipe:
