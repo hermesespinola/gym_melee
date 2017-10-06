@@ -92,3 +92,7 @@ while True:
         print("sliding_off_edge")
     if dframe.edge_hanging:
         print("edge_hanging")
+    if dframe.hit:
+        print("hit:", dframe.opponent_percent)
+    if dframe.hitted:
+        print("hitted:", dframe.percent)

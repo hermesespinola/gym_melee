@@ -1,4 +1,5 @@
 from melee.enums import Action
+from copy import copy
 
 class FrameDelta(object):
     """Defines the change in player and opponent state between frames."""
@@ -12,9 +13,12 @@ class FrameDelta(object):
     def step(self):
         self.opponent = PlayerDelta(self.prev_opponent_state, self.gamestate.opponent_state)
         self.ai = PlayerDelta(self.prev_ai_state, self.gamestate.ai_state)
-        self.prev_opponent_state = self.gamestate.opponent_state
-        self.prev_ai_state = self.gamestate.ai_state
-
+        self.opponent.hit = self.ai.hitted
+        self.ai.hit = self.opponent.hitted
+        self.opponent.opponent_percent = self.ai.percent
+        self.ai.opponent_percent = self.opponent.percent
+        self.prev_opponent_state = copy(self.gamestate.opponent_state)
+        self.prev_ai_state = copy(self.gamestate.ai_state)
 
 class PlayerDelta(object):
     """Defines the change in relevant (for the ai) states of a player."""
@@ -24,6 +28,10 @@ class PlayerDelta(object):
         self.on_ground = new_state.on_ground
         self.move_x = new_state.x - prev_state.x
         self.move_y = new_state.y - prev_state.y
+        self.percent =  new_state.percent - prev_state.percent
+        self.hitted = (self.percent > 0)
+        self.hit = False
+        self.opponent_percent = 0
         act = new_state.action
         self.dead = act in (Action.DEAD_DOWN, Action.DEAD_LEFT, \
                         Action.DEAD_RIGHT, Action.DEAD_FLY_STAR, Action.DEAD_FLY, \
