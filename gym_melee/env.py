@@ -6,7 +6,7 @@ import sys
 import os
 from copy import deepcopy as copy
 
-from gym_melee.frame_state import FrameDelta
+from gym_melee.framestate import FrameDelta
 
 class MeleeEnv(object):
     """
