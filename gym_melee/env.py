@@ -86,7 +86,6 @@ class MeleeEnv(object):
         elif self.gamestate.menu_state == melee.enums.Menu.CHARACTER_SELECT:
             watcher.choose_character(self.gamestate)
         elif self.gamestate.menu_state == melee.enums.Menu.POSTGAME_SCORES:
-            watcher.save_sat(self.gamestate)
             # Send a Ctrl-C signal to shut down the program. asta la vista
             os.kill(os.getpid(), signal.SIGINT)
 
