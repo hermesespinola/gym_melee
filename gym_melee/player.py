@@ -99,7 +99,7 @@ def parse_character(character):
         return melee.enums.Character.YOSHI
     elif _character == 'dk' or _character == 'donkeykong':
         return melee.enums.Character.DK
-    elif _character == 'ganondorf':
+    elif _character == 'ganondorf' or _character == 'ganon':
         return melee.enums.Character.GANONDORF
     elif _character == 'falco':
         return melee.enums.Character.FALCO

@@ -77,12 +77,16 @@ class MeleeEnv(object):
             print("WARNING: Last frame took " + \
                     str(self.gamestate.processingtime*1000) + "ms to process.")
 
-        # What menu are we in?
+        # What menu are we in? !!!
         if self.gamestate.menu_state == melee.enums.Menu.IN_GAME:
+            # Filter states
             self.framedata.recordframe(self.gamestate)
+
             self.deltastate.step()
+
             # TODO: add reward
             watcher.take_action(self.deltastate)
+
         elif self.gamestate.menu_state == melee.enums.Menu.CHARACTER_SELECT:
             watcher.choose_character(self.gamestate)
         elif self.gamestate.menu_state == melee.enums.Menu.POSTGAME_SCORES:
@@ -97,6 +101,9 @@ class MeleeEnv(object):
         if self.log:
             self.log.logframe(self.gamestate)
             self.log.writeframe()
+
+        if self.debug:
+            self.gamestate.print_state()
         return self.deltastate
 
     def set_ai_character(self, character):

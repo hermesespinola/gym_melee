@@ -29,6 +29,7 @@ class PlayerDelta(object):
         self.move_x = new_state.x - prev_state.x
         self.move_y = new_state.y - prev_state.y
         self.percent =  new_state.percent - prev_state.percent
+        self.hitstun_left = new_state.hitstun_frames_left
         self.hitted = (self.percent > 0)
         self.hit = False
         self.opponent_percent = 0

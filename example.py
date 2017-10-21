@@ -24,18 +24,25 @@ character = args.character
 stage = args.stage
 debug = args.debug
 
+# tells controller type (standard, gc, etc.)
+# STANDARD = "6"
+# GCN_ADAPTER = "12"
+# UNPLUGGED = "0"
+# XBOX = "2"
+# PS4 = "4"
 controller = args.controller
 
+# Starts dolphin, inits some stuff.
 env = gym_melee.MeleeEnv(stage, controllertype=controller, debug=debug)
 
 # The ai player
+# TODO: use a real player
 player = gym_melee.RLPlayer(character, env.get_ai_controller(), debug=debug)
 
 # Game loop
 env.start('Super Smash Bros. Melee (v1.02).iso')
 while True:
-    dframe = env.step(player).opponent
-    # Debug this shit
+    dframe = env.step(player).ai
     if dframe.dead:
         print("dead")
     if dframe.shield_reflect:
