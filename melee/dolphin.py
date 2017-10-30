@@ -6,7 +6,7 @@ from melee import enums
 class Dolphin:
 
     """Do a some setup of some important dolphin paths"""
-    def __init__(self, ai_port, opponent_port, opponent_type, logger=None):
+    def __init__(self, ai_port, opponent_port, opponent_type, ai_type=enums.ControllerType.STANDARD, logger=None):
         self.ai_port = ai_port
         self.opponent_port = opponent_port
         self.logger = logger
@@ -38,7 +38,7 @@ class Dolphin:
             os.mkfifo(pipes_path)
 
         #setup the controllers specified
-        self.setup_controller(ai_port)
+        self.setup_controller(ai_port, ai_type)
         self.setup_controller(opponent_port, opponent_type)
 
     """Setup the necessary files for dolphin to recognize the player at the given
@@ -86,8 +86,39 @@ class Dolphin:
         #This section is unused if it's not a standard input (I think...)
         elif controllertype == enums.ControllerType.PS4:
             config.set(section, 'Device', 'evdev/0/Wireless Controller')
+            config.set(section, 'Buttons/A', 'Button 2')
+            config.set(section, 'Buttons/B', 'Button 1')
+            config.set(section, 'Buttons/X', 'Button 0')
+            config.set(section, 'Buttons/Y', 'Button 3')
+            config.set(section, 'Buttons/Z', 'Button 5')
+            config.set(section, 'Buttons/L', 'Button 6')
+            config.set(section, 'Buttons/R', 'Button 7')
+            config.set(section, 'Main Stick/Up', 'Axis 1-')
+            config.set(section, 'Main Stick/Down', 'Axis 1+')
+            config.set(section, 'Main Stick/Left', 'Axis 0-')
+            config.set(section, 'Main Stick/Right', 'Axis 0+')
+            config.set(section, 'Triggers/L', 'Button 6')
+            config.set(section, 'Triggers/R', 'Button 7')
+            config.set(section, 'Main Stick/Modifier', 'Button 10')
+            config.set(section, 'Main Stick/Modifier/Range', '50.000000000000000')
+            config.set(section, 'D-Pad/Up', 'Axis 7-')
+            config.set(section, 'D-Pad/Down', 'Axis 7+')
+            config.set(section, 'D-Pad/Left', 'Axis 6-')
+            config.set(section, 'D-Pad/Right', 'Axis 6+')
+            config.set(section, 'Buttons/Start', 'Button 9')
+            config.set(section, 'Buttons/A', 'Button 2')
+            config.set(section, 'C-Stick/Up', 'Axis 5-')
+            config.set(section, 'C-Stick/Down', 'Axis 5+')
+            config.set(section, 'C-Stick/Left', 'Axis 2-')
+            config.set(section, 'C-Stick/Right', 'Axis 2+')
+            config.set(section, 'Triggers/L-Analog', '')
+            config.set(section, 'Triggers/R-Analog', '')
+            controllertype = enums.ControllerType.STANDARD
         else:
             config.set(section, 'Device', 'XInput2/0/Virtual core pointer')
+            # TODO: Add xbox controller configuration
+            controllertype = enums.ControllerType.STANDARD
+        # IDEA: Add keyboard support
 
         with open(controller_config_path, 'w') as configfile:
             config.write(configfile)

@@ -2,16 +2,20 @@
 import argparse
 import gym_melee
 
-parser = argparse.ArgumentParser(description='Example of libmelee in action')
+parser = argparse.ArgumentParser(description='Example gym_melee')
 parser.add_argument('--port', '-p',
                     help='The controller port your AI will play on',
                     default=2)
 parser.add_argument('--opponent', '-o',
                     help='The controller port the opponent will play on',
                     default=1)
+parser.add_argument('--mode', '-m', help='Mode of gym_melee (watch | play)',
+                    default='watch')
 parser.add_argument('--controller', '-i',
                     help='The controller type, options are gcna, ps4, xbox, bot and unplugged',
                     default='gcna')
+parser.add_argument('--aicontroller', '-a',
+                    help='Should the ai port play as a bot or read from a controller same options as in --controller')
 parser.add_argument('--debug', '-d', action='store_true',
                     help='Debug mode.')
 parser.add_argument('--character', '-c', default='fox',
@@ -23,6 +27,7 @@ args = parser.parse_args()
 character = args.character
 stage = args.stage
 debug = args.debug
+mode = args.mode
 
 # tells controller type (standard, gc, etc.)
 # STANDARD = "6"
@@ -30,17 +35,18 @@ debug = args.debug
 # UNPLUGGED = "0"
 # XBOX = "2"
 # PS4 = "4"
-controller = args.controller
+controller_type = args.controller
+ai_controller_type = args.aicontroller
 
 # Starts dolphin, inits some stuff.
-env = gym_melee.MeleeEnv(stage, controllertype=controller, debug=debug)
+env = gym_melee.MeleeEnv(stage, controller_type=controller_type,
+                    ai_controller_type=ai_controller_type, debug=debug)
 
 # The ai player
-# TODO: use a real player
 player = gym_melee.RLPlayer(character, env.get_ai_controller(), debug=debug)
 
 # Game loop
-env.start('Super Smash Bros. Melee (v1.02).iso')
+env.start(mode, 'Super Smash Bros. Melee (v1.02).iso')
 while True:
     dframe = env.step(player).ai
     if dframe.dead:
