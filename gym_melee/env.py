@@ -64,12 +64,12 @@ class MeleeEnv(object):
         signal.signal(signal.SIGINT, signal_handler)
 
     # IDEA: add auto_train feature
-    def start(self, mode, iso_path):
+    def start(self, iso_path):
         if self.opponent_type == melee.enums.ControllerType.UNPLUGGED:
             self.dolphin.run(render=True)
         else:
             self.dolphin.run(render=True, iso_path=iso_path)
-        if self.controller and mode == 'play':
+        if self.controller:
             self.controller.connect()
 
     def step(self, watcher):

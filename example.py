@@ -9,8 +9,6 @@ parser.add_argument('--port', '-p',
 parser.add_argument('--opponent', '-o',
                     help='The controller port the opponent will play on',
                     default=1)
-parser.add_argument('--mode', '-m', help='Mode of gym_melee (watch | play)',
-                    default='watch')
 parser.add_argument('--controller', '-i',
                     help='The controller type, options are gcna, ps4, xbox, bot and unplugged',
                     default='gcna')
@@ -27,7 +25,6 @@ args = parser.parse_args()
 character = args.character
 stage = args.stage
 debug = args.debug
-mode = args.mode
 
 # tells controller type (standard, gc, etc.)
 # STANDARD = "6"
@@ -46,7 +43,7 @@ env = gym_melee.MeleeEnv(stage, controller_type=controller_type,
 player = gym_melee.RLPlayer(character, env.get_ai_controller(), debug=debug)
 
 # Game loop
-env.start(mode, 'Super Smash Bros. Melee (v1.02).iso')
+env.start('Super Smash Bros. Melee (v1.02).iso')
 while True:
     dframe = env.step(player).ai
     if dframe.dead:
