@@ -14,7 +14,8 @@ class MeleeEnv(object):
     Rewards are proportional to taken (negative) and provoked (Positive) damage.
     Aditionally, a correct use of shield and dodge yields small positive rewards.
     """
-    def __init__(self, stage, opponent_port=1, ai_port=2, controllertype='gcna', debug=False):
+    def __init__(self, stage, opponent_port=1, ai_port=2, controller_type='gcna',
+            ai_controller_type='standard', debug=False):
         check_port(opponent_port)
         check_port(ai_port)
         self.framesaves = os.path.join(os.path.realpath(os.path.curdir), "saves")
@@ -25,12 +26,13 @@ class MeleeEnv(object):
         self.ai_port = ai_port
         self.ai_character = 'generic'
         self.stage = parse_stage(stage)
-        self.opponent_type = parse_controller(controllertype)
+        self.opponent_type = parse_controller(controller_type)
+        ai_type = parse_controller(ai_controller_type)
         self.framedata = melee.framedata.FrameData(True)
 
         # Create our Dolphin object. This will be the primary object that we will interface with
         self.dolphin = melee.dolphin.Dolphin(ai_port=ai_port, opponent_port=opponent_port,
-            opponent_type=self.opponent_type, logger=self.log)
+            opponent_type=self.opponent_type, ai_type=ai_type, logger=self.log)
         # Create our GameState object for the dolphin instance
         self.gamestate = melee.gamestate.GameState(self.dolphin)
         self.deltastate = FrameDelta(self.gamestate)
