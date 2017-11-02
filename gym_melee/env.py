@@ -99,6 +99,8 @@ class MeleeEnv(object):
         elif self.gamestate.menu_state == melee.enums.Menu.STAGE_SELECT:
             melee.menuhelper.choosestage(stage=self.stage,
                 gamestate=self.gamestate, controller=watcher.controller)
+            # This will execute 30 times per second but who cares
+            self.ai_character = str(self.gamestate.player[self.ai_port].character).split('.')[1]
             watcher.controller.flush()
         if self.log:
             self.log.logframe(self.gamestate)
