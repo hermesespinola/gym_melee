@@ -1,6 +1,10 @@
 import melee
 from melee.enums import Button
 import random
+from pprint import pprint
+
+# TODO: define buffer size
+MAX_BUFFER_SIZE = 60
 
 A = Button.BUTTON_A.value
 A_UP = A + "_UP"
@@ -27,6 +31,8 @@ MAIN_RIGHT = Button.BUTTON_MAIN.value + "_RIGHT"
 actions = [A, A_UP, A_DOWN, A_LEFT, A_RIGHT, SMASH, SMASH_LEFT, SMASH_RIGHT, \
         SMASH_UP, SMASH_DOWN, GRAB, SHIELD, DODGE_LEFT, DODGE_RIGHT, DODGE_UP, \
         DODGE_DOWN, MAIN_UP, MAIN_HALF_UP, MAIN_DOWN, MAIN_LEFT, MAIN_RIGHT]
+
+state_buffer = []
 
 def random_action(deltastate):
     action = random.choice(actions)
@@ -76,8 +82,14 @@ class RLPlayer(object):
     def take_action(self, deltastate):
         action = self.action_chooser(deltastate)
         self.controller_action.get(action, lambda: None)()
+        if len(state_buffer) > MAX_BUFFER_SIZE:
+            state_buffer.pop(0)
+        state_buffer.append(deltastate)
+        # TODO: Add save good and bad buffers
+        if deltastate.ai.hitted or deltastate.ai.dead:
+            pprint(state_buffer)
+            state_buffer.clear()
         self.controller.flush()
-
 
 def parse_character(character):
     _character = "".join(character.split('_')).lower()

@@ -1,7 +1,11 @@
 from melee.enums import Action
 from copy import copy
 
-class FrameDelta(object):
+DEAD_ACTIONS = (Action.DEAD_DOWN, Action.DEAD_LEFT, Action.DEAD_RIGHT,
+                Action.DEAD_FLY_STAR, Action.DEAD_FLY, Action.DEAD_FLY_SPLATTER,
+                Action.DEAD_FLY_SPLATTER_FLAT)
+
+class DeltaState(object):
     """Defines the change in player and opponent state between frames."""
     def __init__(self, gamestate):
         self.prev_opponent_state = gamestate.opponent_state
@@ -34,9 +38,8 @@ class PlayerDelta(object):
         self.hit = False
         self.opponent_percent = 0
         act = new_state.action
-        self.dead = act in (Action.DEAD_DOWN, Action.DEAD_LEFT, \
-                        Action.DEAD_RIGHT, Action.DEAD_FLY_STAR, Action.DEAD_FLY, \
-                        Action.DEAD_FLY_SPLATTER, Action.DEAD_FLY_SPLATTER_FLAT)
+        prev_act = prev_state.action
+        self.dead = prev_act not in DEAD_ACTIONS and act in DEAD_ACTIONS
         if self.dead:
             self.percent = 100 # to give feedback to the ai
         else:

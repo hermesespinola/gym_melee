@@ -6,7 +6,7 @@ import sys
 import os
 from copy import deepcopy as copy
 
-from gym_melee.framestate import FrameDelta
+from gym_melee.deltastate import DeltaState
 
 class MeleeEnv(object):
     """
@@ -35,7 +35,7 @@ class MeleeEnv(object):
             opponent_type=self.opponent_type, ai_type=ai_type, logger=self.log)
         # Create our GameState object for the dolphin instance
         self.gamestate = melee.gamestate.GameState(self.dolphin)
-        self.deltastate = FrameDelta(self.gamestate)
+        self.deltastate = DeltaState(self.gamestate)
 
         def signal_handler(signal, frame):
             self.dolphin.terminate()
@@ -63,7 +63,6 @@ class MeleeEnv(object):
 
         signal.signal(signal.SIGINT, signal_handler)
 
-    # IDEA: add auto_train feature
     def start(self, iso_path):
         if self.opponent_type == melee.enums.ControllerType.UNPLUGGED:
             self.dolphin.run(render=True)
