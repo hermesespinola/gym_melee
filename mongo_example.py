@@ -1,5 +1,29 @@
 from pymongo import MongoClient
 
+"""
+from datetime import datetime
+now = datetime.now()
+# Date of game
+col_time = '%s-%s-%s-%s-%s' % (now.year, now.month, now.day, now.hour, now.minute)
+
+# Create collection for each player frames
+player1_frames_collection = db['player1' + col_time]
+player2_frames_collection = db['player2' + col_time]
+
+# Init fram data list
+p1_frames = []
+p2_frames = []
+
+# for each player x frames during game:
+current_frame = {}
+current_frame["x"] = dframe.x
+px_frames.append(current_frame)
+
+# at end of the game:
+f1 = player1_frames_collection.insert_many(p1_frames)
+f2 = player2_frames_collection.insert_many(p2_frames)
+"""
+
 # Connect to the cloud MongoDB as 'hermes' user.
 client = MongoClient("mongodb://hermes:hermes@ds245615.mlab.com:45615/meleeframes")
 

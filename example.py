@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import argparse
 import gym_melee
+from pymongo import MongoClient
 
 parser = argparse.ArgumentParser(description='Example gym_melee')
 parser.add_argument('--port', '-p',
@@ -44,6 +45,7 @@ env = gym_melee.MeleeEnv(stage, controller_type=controller_type,
 player = gym_melee.RLPlayer(character, env.get_ai_controller(), debug=debug)
 
 # Game loop
+# TODO: Guardar datos en mongo
 env.start('Super Smash Bros. Melee (v1.02).iso')
 while True:
     dframe = env.step(player).ai
