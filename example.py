@@ -57,8 +57,20 @@ game = {
 }
 
 env.start('Super Smash Bros. Melee (v1.02).iso')
+
+client = MongoClient("mongodb://hermes:hermes@ds245615.mlab.com:45615/meleeframes")
+db = client['meleeframes']
+
+games = db['games']
+# this_game = db.insert_one()
+
+from datetime import datetime
+now = datetime.now()
+# Date of game
+col_time = '%s-%s-%s-%s-%s' % (now.year, now.month, now.day, now.hour, now.minute)
 while True:
-    dframe = env.step(player).ai
+    step = env.step(player)
+    games.insert_one(step.todict())
     if debug:
         if dframe.dead:
             print("dead")
