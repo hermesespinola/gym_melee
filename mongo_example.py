@@ -62,7 +62,8 @@ test2 = [
 # post_id = collection.insert_one(test).inserted_id
 
 # Insert more then one object/document
-# post_id = collection.insert_many(test2)
+# post_id = collection.insert_many(test2)name"])
+    # print(docs["l
 
 # Iterate over a collection and print it
 for docs in collection.find():

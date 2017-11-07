@@ -46,6 +46,16 @@ player = gym_melee.RLPlayer(character, env.get_ai_controller(), debug=debug)
 
 # Game loop
 # TODO: Guardar datos en mongo
+client = MongoClient('mongodb://hermes:hermes@info.gda.itesm.mx:27017/melee')
+db = client['melee']
+collection = db['games']
+game = {
+    p1:
+    p2:
+    p3:
+    p4:
+}
+
 env.start('Super Smash Bros. Melee (v1.02).iso')
 while True:
     dframe = env.step(player).ai
