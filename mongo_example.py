@@ -25,14 +25,15 @@ f2 = player2_frames_collection.insert_many(p2_frames)
 """
 
 # Connect to the cloud MongoDB as 'hermes' user.
-client = MongoClient("mongodb://hermes:hermes@ds245615.mlab.com:45615/meleeframes")
+client = MongoClient('mongodb://hermes:hermes@info.gda.itesm.mx:27017/melee')
+# client = MongoClient("mongodb://hermes:hermes@ds245615.mlab.com:45615/meleeframes")
 
 # Select the database 'meleeframes'.
-db = client['meleeframes']              # or client.meleeframes
+db = client['melee']              # or client.meleeframes
 
 # Create or select collection with name: 'test-collection'.
 # This creates it if it does not exists.
-collection = db['test-collection']      # or db.test-collection
+collection = db['test']      # or db.test-collection
 
 # Create an object/document.
 test = {
@@ -58,10 +59,10 @@ test2 = [
 # Insert the object/document to the DB.
 # Do not know if the variable is necessary.
 # '.inserted_id' creates an id for the object.
-#post_id = collection.insert_one(test).inserted_id
+# post_id = collection.insert_one(test).inserted_id
 
 # Insert more then one object/document
-#post_id = collection.insert_many(test2)
+# post_id = collection.insert_many(test2)
 
 # {fecha: {
 #     p1:{
@@ -78,9 +79,9 @@ test2 = [
 
 # Iterate over a collection and print it
 for docs in collection.find():
-    print docs
-    print docs["name"]
-    print docs["lastname"]
+    print(docs)
+    # print(docs["name"])
+    # print(docs["lastname"])
 
 
 # For referece: http://api.mongodb.com/python/current/tutorial.html
