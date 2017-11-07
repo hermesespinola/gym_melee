@@ -43,15 +43,15 @@ test = {
 test2 = [
     {
         "name" : "Hermes",
-        "lastname" : "Espinola" 
+        "lastname" : "Espinola"
     },
     {
         "name" : "Andres",
-        "lastname" : "Barro" 
+        "lastname" : "Barro"
     },
     {
         "name" : "Gera",
-        "lastname" : "Juarez" 
+        "lastname" : "Juarez"
     }
 ]
 
@@ -62,6 +62,19 @@ test2 = [
 
 # Insert more then one object/document
 #post_id = collection.insert_many(test2)
+
+# {fecha: {
+#     p1:{
+#         char:'link',
+#         frames:[{}]
+#     },
+#     p2:{
+#         char:¨¨,
+#         frames[{}]
+#     },
+#     winner:'p1'
+# },
+# fecha2: ...}
 
 # Iterate over a collection and print it
 for docs in collection.find():
