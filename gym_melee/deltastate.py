@@ -78,6 +78,7 @@ class PlayerDelta(object):
         self.bounce_ceiling = (act == Action.BOUNCE_CEILING)
         self.sliding_off_edge = (act == Action.SLIDING_OFF_EDGE)
         self.edge_hanging = (act == Action.EDGE_HANGING)
+        self.off_stage = new_state.off_stage
 
         def todict(self):
             return {
@@ -120,5 +121,6 @@ class PlayerDelta(object):
                 "bounce_wall": self.bounce_wall,
                 "bounce_ceiling": self.bounce_ceiling,
                 "sliding_off_edge": self.sliding_off_edge,
-                "edge_hanging": self.edge_hanging
+                "edge_hanging": self.edge_hanging,
+                "off_stage": self.off_stage
             }
