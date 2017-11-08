@@ -29,6 +29,7 @@ class MeleeEnv(object):
         self.opponent_type = parse_controller(controller_type)
         ai_type = parse_controller(ai_controller_type)
         self.framedata = melee.framedata.FrameData(True)
+        self.game_end = False
 
         # Create our Dolphin object. This will be the primary object that we will interface with
         self.dolphin = melee.dolphin.Dolphin(ai_port=ai_port, opponent_port=opponent_port,
@@ -80,6 +81,7 @@ class MeleeEnv(object):
 
         # What menu are we in? !!!
         if self.gamestate.menu_state == melee.enums.Menu.IN_GAME:
+            self.game_end = True
             # Filter states
             self.framedata.recordframe(self.gamestate)
 
@@ -89,10 +91,10 @@ class MeleeEnv(object):
             watcher.take_action(self.deltastate)
 
         elif self.gamestate.menu_state == melee.enums.Menu.CHARACTER_SELECT:
+            if self.game_end:
+                # Send a Ctrl-C signal to shut down the program. asta la vista
+                os.kill(os.getpid(), signal.SIGINT)
             watcher.choose_character(self.gamestate)
-        elif self.gamestate.menu_state == melee.enums.Menu.POSTGAME_SCORES:
-            # Send a Ctrl-C signal to shut down the program. asta la vista
-            os.kill(os.getpid(), signal.SIGINT)
 
         # If we're at the stage select screen, choose a stage
         elif self.gamestate.menu_state == melee.enums.Menu.STAGE_SELECT:

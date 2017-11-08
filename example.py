@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import argparse
 import gym_melee
+import melee.enums
 from pymongo import MongoClient
 
 parser = argparse.ArgumentParser(description='Example gym_melee')
@@ -49,86 +50,38 @@ player = gym_melee.RLPlayer(character, env.get_ai_controller(), debug=debug)
 client = MongoClient('mongodb://hermes:hermes@info.gda.itesm.mx:27017/melee')
 db = client['melee']
 collection = db['games']
-game = {
-    p1:
-    p2:
-    p3:
-    p4:
-}
 
-env.start('Super Smash Bros. Melee (v1.02).iso')
-
-client = MongoClient("mongodb://hermes:hermes@ds245615.mlab.com:45615/meleeframes")
-db = client['meleeframes']
-
-games = db['games']
-# this_game = db.insert_one()
+env.start('/run/media/andres/TI10701100B/Things/ROMs & ISOs/Super Smash Bros. Melee (v1.02).iso')
 
 from datetime import datetime
 now = datetime.now()
 # Date of game
 col_time = '%s-%s-%s-%s-%s' % (now.year, now.month, now.day, now.hour, now.minute)
-while True:
+
+while env.step(player).gamestate.menu_state != melee.enums.Menu.IN_GAME:
+    continue
+
+step = env.step(player)
+game = {
+    'date':now,
+    'p1':{
+        'character':str(step.gamestate.player[args.opponent].character)[10:],
+        'frame':[]
+    },
+    'p2':{
+        'character':str(step.gamestate.player[args.port].character)[10:],
+        'frame':[]
+    }
+}
+
+while env.step(player).gamestate.menu_state == melee.enums.Menu.IN_GAME:
     step = env.step(player)
-    games.insert_one(step.todict())
-    if debug:
-        if dframe.dead:
-            print("dead")
-        if dframe.shield_reflect:
-            print("shield_reflect")
-        if dframe.falling:
-            print("falling")
-        if dframe.falling_aerial:
-            print("falling_aerial")
-        if dframe.dead_fall:
-            print("dead_fall")
-        if dframe.tumbling:
-            print("tumbling")
-        if dframe.crouching:
-            print("crouching")
-        if dframe.landing:
-            print("landing")
-        if dframe.landing_special:
-            print("landing_special")
-        if dframe.shield:
-            print("shield")
-        if dframe.shield_stun:
-            print("shield_stun")
-        if dframe.ground_getup:
-            print("ground_getup")
-        if dframe.ground_roll_forward_up:
-            print("ground_roll_forward_up")
-        if dframe.ground_roll_backward_up:
-            print("ground_roll_backward_up")
-        if dframe.tech_miss_down:
-            print("tech_miss_down")
-        if dframe.lying_ground_down:
-            print("lying_ground_down")
-        if dframe.getup_attack:
-            print("getup_attack")
-        if dframe.grab:
-            print("grab")
-        if dframe.grab_break:
-            print("grab_break")
-        if dframe.grabbed:
-            print("grabbed")
-        if dframe.roll_forward:
-            print("roll_forward")
-        if dframe.roll_backward:
-            print("roll_backward")
-        if dframe.spotdodge:
-            print("spotdodge")
-        if dframe.airdodge:
-            print("airdodge")
-        if dframe.bounce_wall:
-            print("bounce_wall")
-        if dframe.bounce_ceiling:
-            print("bounce_ceiling")
-        if dframe.sliding_off_edge:
-            print("sliding_off_edge")
-        if dframe.edge_hanging:
-            print("edge_hanging")
-        if dframe.hit:
-            print("hit:", dframe.opponent_percent)
-        if dframe.hitted:
-            print("hitted:", dframe.percent)
+    game['p1']['frame'].append(step.todict()['opponent'])
+    game['p2']['frame'].append(step.todict()['ai'])
+
+collection.insert_one(game)
+print('Saved.')
+
+while True:
+    env.step(player)
+
