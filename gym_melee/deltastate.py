@@ -79,6 +79,7 @@ class PlayerDelta(object):
         self.sliding_off_edge = (act == Action.SLIDING_OFF_EDGE)
         self.edge_hanging = (act == Action.EDGE_HANGING)
         self.off_stage = new_state.off_stage
+
         def todict(self):
             return {
                 "facing": self.facing,
