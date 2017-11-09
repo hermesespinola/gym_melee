@@ -83,7 +83,6 @@ class Dolphin:
             config.set(section, 'C-Stick/Right', 'Axis C X +')
             config.set(section, 'Triggers/L-Analog', 'Axis L -+')
             config.set(section, 'Triggers/R-Analog', 'Axis R -+')
-        #This section is unused if it's not a standard input (I think...)
         elif controllertype == enums.ControllerType.PS4:
             config.set(section, 'Device', 'evdev/0/Wireless Controller')
             config.set(section, 'Buttons/A', 'Button 2')
@@ -114,7 +113,7 @@ class Dolphin:
             config.set(section, 'Triggers/L-Analog', '')
             config.set(section, 'Triggers/R-Analog', '')
             controllertype = enums.ControllerType.STANDARD
-        else:
+        elif controllertype == enums.ControllerType.XBOX:
             config.set(section, 'Device', 'XInput2/0/Virtual core pointer')
             # TODO: Add xbox controller configuration
             controllertype = enums.ControllerType.STANDARD

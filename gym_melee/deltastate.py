@@ -3,7 +3,7 @@ from copy import copy
 
 DEAD_ACTIONS = (Action.DEAD_DOWN, Action.DEAD_LEFT, Action.DEAD_RIGHT,
                 Action.DEAD_FLY_STAR, Action.DEAD_FLY, Action.DEAD_FLY_SPLATTER,
-                Action.DEAD_FLY_SPLATTER_FLAT)
+                Action.DEAD_FLY_SPLATTER_FLAT, Action.DEAD_FALL)
 
 class DeltaState(object):
     """Defines the change in player and opponent state between frames."""
@@ -46,10 +46,7 @@ class PlayerDelta(object):
         act = new_state.action
         prev_act = prev_state.action
         self.dead = prev_act not in DEAD_ACTIONS and act in DEAD_ACTIONS
-        if self.dead:
-            self.percent = 100 # to give feedback to the ai
-        else:
-            self.percent = new_state.percent - prev_state.percent
+        self.percent = new_state.percent - prev_state.percent
         self.shield_reflect = (act == Action.SHIELD_REFLECT)
         self.knee_bend = (act == Action.KNEE_BEND)
         self.falling = (act == Action.FALLING)
@@ -79,47 +76,48 @@ class PlayerDelta(object):
         self.sliding_off_edge = (act == Action.SLIDING_OFF_EDGE)
         self.edge_hanging = (act == Action.EDGE_HANGING)
         self.off_stage = new_state.off_stage
-        def todict(self):
-            return {
-                "facing": self.facing,
-                "invulnerable": self.invulnerable,
-                "on_ground": self.on_ground,
-                "move_x": self.move_x,
-                "move_y": self.move_y,
-                "percent": self.percent,
-                "hitstun_left": self.hitstun_left,
-                "hitted": self.hitted,
-                "hit": self.hit,
-                "opponent_percent": self.opponent_percent,
-                "dead": self.dead,
-                "percent": self.percent,
-                "shield_reflect": self.shield_reflect,
-                "knee_bend": self.knee_bend,
-                "falling": self.falling,
-                "falling_aerial": self.falling_aerial,
-                "dead_fall": self.dead_fall,
-                "tumbling": self.tumbling,
-                "crouching": self.crouching,
-                "landing": self.landing,
-                "landing_special": self.landing_special,
-                "shield": self.shield,
-                "shield_stun": self.shield_stun,
-                "ground_getup": self.ground_getup,
-                "ground_roll_forward_up": self.ground_roll_forward_up,
-                "ground_roll_backward_up": self.ground_roll_backward_up,
-                "tech_miss_down": self.tech_miss_down,
-                "lying_ground_down": self.lying_ground_down,
-                "getup_attack": self.getup_attack,
-                "grab": self.grab,
-                "grab_break": self.grab_break,
-                "grabbed": self.grabbed,
-                "roll_forward": self.roll_forward,
-                "roll_backward": self.roll_backward,
-                "spotdodge": self.spotdodge,
-                "airdodge": self.airdodge,
-                "bounce_wall": self.bounce_wall,
-                "bounce_ceiling": self.bounce_ceiling,
-                "sliding_off_edge": self.sliding_off_edge,
-                "edge_hanging": self.edge_hanging,
-                "off_stage": self.off_stage
-            }
+
+    def todict(self):
+        return {
+            "facing": self.facing,
+            "invulnerable": self.invulnerable,
+            "on_ground": self.on_ground,
+            "move_x": self.move_x,
+            "move_y": self.move_y,
+            "percent": self.percent,
+            "hitstun_left": self.hitstun_left,
+            "hitted": self.hitted,
+            "hit": self.hit,
+            "opponent_percent": self.opponent_percent,
+            "dead": self.dead,
+            "percent": self.percent,
+            "shield_reflect": self.shield_reflect,
+            "knee_bend": self.knee_bend,
+            "falling": self.falling,
+            "falling_aerial": self.falling_aerial,
+            "dead_fall": self.dead_fall,
+            "tumbling": self.tumbling,
+            "crouching": self.crouching,
+            "landing": self.landing,
+            "landing_special": self.landing_special,
+            "shield": self.shield,
+            "shield_stun": self.shield_stun,
+            "ground_getup": self.ground_getup,
+            "ground_roll_forward_up": self.ground_roll_forward_up,
+            "ground_roll_backward_up": self.ground_roll_backward_up,
+            "tech_miss_down": self.tech_miss_down,
+            "lying_ground_down": self.lying_ground_down,
+            "getup_attack": self.getup_attack,
+            "grab": self.grab,
+            "grab_break": self.grab_break,
+            "grabbed": self.grabbed,
+            "roll_forward": self.roll_forward,
+            "roll_backward": self.roll_backward,
+            "spotdodge": self.spotdodge,
+            "airdodge": self.airdodge,
+            "bounce_wall": self.bounce_wall,
+            "bounce_ceiling": self.bounce_ceiling,
+            "sliding_off_edge": self.sliding_off_edge,
+            "edge_hanging": self.edge_hanging,
+            "off_stage": self.off_stage
+        }
