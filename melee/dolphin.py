@@ -83,6 +83,7 @@ class Dolphin:
             config.set(section, 'C-Stick/Right', 'Axis C X +')
             config.set(section, 'Triggers/L-Analog', 'Axis L -+')
             config.set(section, 'Triggers/R-Analog', 'Axis R -+')
+
         elif controllertype == enums.ControllerType.PS4:
             config.set(section, 'Device', 'evdev/0/Wireless Controller')
             config.set(section, 'Buttons/A', 'Button 2')
