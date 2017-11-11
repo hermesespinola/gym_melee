@@ -45,6 +45,7 @@ class PlayerDelta(object):
         self.opponent_percent = 0
         act = new_state.action
         prev_act = prev_state.action
+        self.stock = new_state.stock - prev_state.stock
         self.dead = prev_act not in DEAD_ACTIONS and act in DEAD_ACTIONS
         self.percent = new_state.percent - prev_state.percent
         self.shield_reflect = (act == Action.SHIELD_REFLECT)
@@ -119,5 +120,6 @@ class PlayerDelta(object):
             "bounce_ceiling": self.bounce_ceiling,
             "sliding_off_edge": self.sliding_off_edge,
             "edge_hanging": self.edge_hanging,
-            "off_stage": self.off_stage
+            "off_stage": self.off_stage,
+            "stock": self.stock
         }

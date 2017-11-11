@@ -51,8 +51,8 @@ client = MongoClient('mongodb://hermes:hermes@info.gda.itesm.mx:27017/melee')
 db = client['melee']
 collection = db['games']
 
-# env.start('/run/media/andres/TI10701100B/Things/ROMs & ISOs/Super Smash Bros. Melee (v1.02).iso')
-env.start('Super Smash Bros. Melee (v1.02).iso')
+env.start('/run/media/andres/TI10701100B/Things/ROMs & ISOs/Super Smash Bros. Melee (v1.02).iso')
+# env.start('Super Smash Bros. Melee (v1.02).iso')
 
 from datetime import datetime
 now = datetime.now()
@@ -75,10 +75,11 @@ game = {
     }
 }
 
-while env.step(player).gamestate.menu_state == melee.enums.Menu.IN_GAME:
-    step = env.step(player)
+step = env.step(player)
+while step.gamestate.menu_state == melee.enums.Menu.IN_GAME:
     game['p1']['frame'].append(step.todict()['opponent'])
     game['p2']['frame'].append(step.todict()['ai'])
+    step = env.step(player)
 
 collection.insert_one(game)
 print('Saved.')
