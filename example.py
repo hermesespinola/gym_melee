@@ -4,6 +4,7 @@ import gym_melee
 import melee.enums
 from pymongo import MongoClient
 from pprint import pprint
+from math import sqrt
 
 parser = argparse.ArgumentParser(description='Example gym_melee')
 parser.add_argument('--port', '-p',
@@ -72,19 +73,37 @@ game = {
         'character':p1_name,
         'frame':[]
     },
-    'p2':{
-        'character':p2_name,
-        'frame':[]
+    'p2': {
+    'character': p2_name,
+    'frame': []
     }
 }
+p2_frame = []
 
 step = env.step(player)
 while step.gamestate.menu_state == melee.enums.Menu.IN_GAME:
     game['p1']['frame'].append(step.opponent.todict())
-    game['p2']['frame'].append(step.ai.todict())
+    p2_frame.append(step.ai.todict())
     step = env.step(player)
+    # if step.opponent.dead_fall:
+    #     print ("Deadfall!!!!")
+    # if step.opponent.falling:
+    #     print ("Falling!!!!")
+    # if step.opponent.falling_aerial:
+    #     print ("falling aerial!!!!!")
+    # if step.opponent.shield_stun:
+    #     print("shield stun!!!")
+    # if step.opponent.shield_reflect:
+    #     print("shield reflect!!!")
+    # if step.opponent.shield:
+    #     print("shield!!!")
+    # print ("Vector:", step.opponent.x - step.ai.x, step.opponent.y - step.ai.y)
+    # print ("Distance:", sqrt((step.opponent.x - step.ai.x) ** 2 + (step.opponent.y - step.ai.y) ** 2))
 
-collection.insert_one(game)
+mongo_id = collection.insert_one(game)
+collection.update_one({'_id': mongo_id.inserted_id}, {"$set": {
+    'p2.frame': p2_frame
+}}, upsert=False)
 print('Saved.')
 
 while True:
