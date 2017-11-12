@@ -53,7 +53,14 @@ class PlayerDelta(object):
     def __init__(self, prev_state, new_state):
         self.facing = new_state.facing
         self.invulnerable = new_state.invulnerable
+        self.invulnerability_left = new_state.invulnerability_left
         self.on_ground = new_state.on_ground
+        self.x = new_state.x
+        self.y = new_state.y
+        self.hitlag_frames_left = new_state.hitlag_frames_left
+        self.hitstun_frames_left = new_state.hitstun_frames_left
+        self.charging_smash = new_state.charging_smash
+        self.jumps_left = new_state.jumps_left
         self.move_x = new_state.x - prev_state.x
         self.move_y = new_state.y - prev_state.y
         self.percent =  new_state.percent - prev_state.percent
@@ -95,12 +102,38 @@ class PlayerDelta(object):
         self.sliding_off_edge = (act == Action.SLIDING_OFF_EDGE)
         self.edge_hanging = (act == Action.EDGE_HANGING)
         self.off_stage = new_state.off_stage
+        self.iasa = new_state.iasa
+        self.moonwalkwarning = new_state.moonwalkwarning
+        self.hitbox_1_size = new_state.hitbox_1_size
+        self.hitbox_2_size = new_state.hitbox_2_size
+        self.hitbox_3_size = new_state.hitbox_3_size
+        self.hitbox_4_size = new_state.hitbox_4_size
+        self.hitbox_1_status = new_state.hitbox_1_status
+        self.hitbox_2_status = new_state.hitbox_2_status
+        self.hitbox_3_status = new_state.hitbox_3_status
+        self.hitbox_4_status = new_state.hitbox_4_status
+        self.hitbox_1_x = new_state.hitbox_1_x
+        self.hitbox_1_y = new_state.hitbox_1_y
+        self.hitbox_2_x = new_state.hitbox_2_x
+        self.hitbox_2_y = new_state.hitbox_2_y
+        self.hitbox_3_x = new_state.hitbox_3_x
+        self.hitbox_3_y = new_state.hitbox_3_y
+        self.hitbox_4_x = new_state.hitbox_4_x
+        self.hitbox_4_y = new_state.hitbox_4_y
         self.projectiles = []
 
     def todict(self):
         return {
             "facing": self.facing,
             "invulnerable": self.invulnerable,
+            "invulnerability_left": self.invulnerability_left,
+            "on_ground": self.on_ground,
+            "x": self.x,
+            "y": self.y,
+            "hitlag_frames_left": self.hitlag_frames_left,
+            "hitstun_frames_left": self.hitstun_frames_left,
+            "charging_smash": self.charging_smash,
+            "jumps_left": self.jumps_left,
             "on_ground": self.on_ground,
             "move_x": self.move_x,
             "move_y": self.move_y,
@@ -141,5 +174,23 @@ class PlayerDelta(object):
             "edge_hanging": self.edge_hanging,
             "off_stage": self.off_stage,
             "stock": self.stock,
+            "iasa": self.iasa,
+            "moonwalkwarning": self.moonwalkwarning,
+            "hitbox_1_size": self.hitbox_1_size,
+            "hitbox_2_size": self.hitbox_2_size,
+            "hitbox_3_size": self.hitbox_3_size,
+            "hitbox_4_size": self.hitbox_4_size,
+            "hitbox_1_status": self.hitbox_1_status,
+            "hitbox_2_status": self.hitbox_2_status,
+            "hitbox_3_status": self.hitbox_3_status,
+            "hitbox_4_status": self.hitbox_4_status,
+            "hitbox_1_x": self.hitbox_1_x,
+            "hitbox_1_y": self.hitbox_1_y,
+            "hitbox_2_x": self.hitbox_2_x,
+            "hitbox_2_y": self.hitbox_2_y,
+            "hitbox_3_x": self.hitbox_3_x,
+            "hitbox_3_y": self.hitbox_3_y,
+            "hitbox_4_x": self.hitbox_4_x,
+            "hitbox_4_y": self.hitbox_4_y,
             "projectiles": self.projectiles
         }
