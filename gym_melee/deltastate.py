@@ -5,6 +5,16 @@ DEAD_ACTIONS = (Action.DEAD_DOWN, Action.DEAD_LEFT, Action.DEAD_RIGHT,
                 Action.DEAD_FLY_STAR, Action.DEAD_FLY, Action.DEAD_FLY_SPLATTER,
                 Action.DEAD_FLY_SPLATTER_FLAT, Action.DEAD_FALL)
 
+def separate_projectiles(gamestate, op_name, ai_name):
+    op_proj = []
+    ai_proj = []
+    for projectile in gamestate.projectiles:
+        if str(projectile.subtype)[18:18+len(op_name)] == op_name:
+            op_proj.append(projectile.todict())
+        elif str(projectile.subtype)[18:18+len(ai_name)] == ai_name:
+            ai_proj.append(projectile.todict())
+    return op_proj, ai_proj
+
 class DeltaState(object):
     """Defines the change in player and opponent state between frames."""
     def __init__(self, gamestate):
@@ -12,6 +22,10 @@ class DeltaState(object):
         self.prev_ai_state = gamestate.ai_state
         self.opponent = PlayerDelta(self.prev_opponent_state, gamestate.opponent_state)
         self.ai = PlayerDelta(self.prev_ai_state, gamestate.ai_state)
+        self.op_name = str(gamestate.player[gamestate.opponent_port].character)[10:]
+        self.ai_name = str(gamestate.player[gamestate.ai_port].character)[10:]
+        self.opponent.projectiles, self.ai.projectiles = \
+                separate_projectiles(gamestate, self.op_name, self.ai_name)
         self.gamestate = gamestate
 
     def step(self):
@@ -23,6 +37,10 @@ class DeltaState(object):
         self.ai.opponent_percent = self.opponent.percent
         self.prev_opponent_state = copy(self.gamestate.opponent_state)
         self.prev_ai_state = copy(self.gamestate.ai_state)
+        self.op_name = str(self.gamestate.player[self.gamestate.opponent_port].character)[10:]
+        self.ai_name = str(self.gamestate.player[self.gamestate.ai_port].character)[10:]
+        self.opponent.projectiles, self.ai.projectiles = \
+                separate_projectiles(self.gamestate, self.op_name, self.ai_name)
 
     def todict(self):
         return {
@@ -77,6 +95,7 @@ class PlayerDelta(object):
         self.sliding_off_edge = (act == Action.SLIDING_OFF_EDGE)
         self.edge_hanging = (act == Action.EDGE_HANGING)
         self.off_stage = new_state.off_stage
+        self.projectiles = []
 
     def todict(self):
         return {
@@ -121,5 +140,6 @@ class PlayerDelta(object):
             "sliding_off_edge": self.sliding_off_edge,
             "edge_hanging": self.edge_hanging,
             "off_stage": self.off_stage,
-            "stock": self.stock
+            "stock": self.stock,
+            "projectiles": self.projectiles
         }

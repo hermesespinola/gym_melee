@@ -3,6 +3,7 @@ import argparse
 import gym_melee
 import melee.enums
 from pymongo import MongoClient
+from pprint import pprint
 
 parser = argparse.ArgumentParser(description='Example gym_melee')
 parser.add_argument('--port', '-p',
@@ -51,8 +52,8 @@ client = MongoClient('mongodb://hermes:hermes@info.gda.itesm.mx:27017/melee')
 db = client['melee']
 collection = db['games']
 
-env.start('/run/media/andres/TI10701100B/Things/ROMs & ISOs/Super Smash Bros. Melee (v1.02).iso')
-# env.start('Super Smash Bros. Melee (v1.02).iso')
+# env.start('/run/media/andres/TI10701100B/Things/ROMs & ISOs/Super Smash Bros. Melee (v1.02).iso')
+env.start('Super Smash Bros. Melee (v1.02).iso')
 
 from datetime import datetime
 now = datetime.now()
@@ -63,22 +64,24 @@ while env.step(player).gamestate.menu_state != melee.enums.Menu.IN_GAME:
     continue
 
 step = env.step(player)
+p1_name = str(step.gamestate.player[args.opponent].character)[10:]
+p2_name = str(step.gamestate.player[args.port].character)[10:]
 game = {
     'date':now,
     'p1': {
-        'character':str(step.gamestate.player[args.opponent].character)[10:],
+        'character':p1_name,
         'frame':[]
     },
     'p2':{
-        'character':str(step.gamestate.player[args.port].character)[10:],
+        'character':p2_name,
         'frame':[]
     }
 }
 
 step = env.step(player)
 while step.gamestate.menu_state == melee.enums.Menu.IN_GAME:
-    game['p1']['frame'].append(step.todict()['opponent'])
-    game['p2']['frame'].append(step.todict()['ai'])
+    game['p1']['frame'].append(step.opponent.todict())
+    game['p2']['frame'].append(step.ai.todict())
     step = env.step(player)
 
 collection.insert_one(game)
