@@ -142,11 +142,13 @@ while step.gamestate.menu_state == melee.enums.Menu.IN_GAME:
     #     print("shield reflect!!!")
     # if step.opponent.shield:
     #     print("shield!!!")
+    if step.opponent.self_kill or step.ai.self_kill:
+        print('Self kill!!! Bitches!!!')
     # print ("Vector:", step.opponent.x - step.ai.x, step.opponent.y - step.ai.y)
     # print ("Distance:", sqrt((step.opponent.x - step.ai.x) ** 2 + (step.opponent.y - step.ai.y) ** 2))
 
 print('Saving...')
-[print ('Saved:', collection.insert_one(p).inserted_id) for p in plays]
+# [print ('Saved:', collection.insert_one(p).inserted_id) for p in plays]
 # mongo_id = collection.insert_one(game)
 # collection.update_one({'_id': mongo_id.inserted_id}, {"$set": {
 #     'p2.frame': p2_frame
