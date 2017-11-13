@@ -5,6 +5,7 @@ import melee.enums
 from pymongo import MongoClient
 from pprint import pprint
 from math import sqrt
+from copy import deepcopy as copy
 
 parser = argparse.ArgumentParser(description='Example gym_melee')
 parser.add_argument('--port', '-p',
@@ -57,9 +58,6 @@ collection = db['games']
 env.start('Super Smash Bros. Melee (v1.02).iso')
 
 from datetime import datetime
-now = datetime.now()
-# Date of game
-col_time = '%s-%s-%s-%s-%s' % (now.year, now.month, now.day, now.hour, now.minute)
 
 while env.step(player).gamestate.menu_state != melee.enums.Menu.IN_GAME:
     continue
@@ -67,8 +65,12 @@ while env.step(player).gamestate.menu_state != melee.enums.Menu.IN_GAME:
 step = env.step(player)
 p1_name = str(step.gamestate.player[args.opponent].character)[10:]
 p2_name = str(step.gamestate.player[args.port].character)[10:]
-game = {
-    'date':now,
+
+now = datetime.now()
+
+buffer_p1 = {
+    'date': datetime.now(),
+    'global_date': now,
     'p1': {
         'character':p1_name,
         'frame':[]
@@ -78,12 +80,55 @@ game = {
     'frame': []
     }
 }
-p2_frame = []
+buffer_p2 = {
+    'date': datetime.now(),
+    'global_date': now,
+    'p1': {
+        'character':p2_name,
+        'frame':[]
+    },
+    'p2': {
+    'character': p1_name,
+    'frame': []
+    }
+}
+
+plays = []
 
 step = env.step(player)
 while step.gamestate.menu_state == melee.enums.Menu.IN_GAME:
-    game['p1']['frame'].append(step.opponent.todict())
-    p2_frame.append(step.ai.todict())
+    buffer_p1['p1']['frame'].append(step.opponent.todict())
+    buffer_p1['p2']['frame'].append(step.ai.todict())
+    buffer_p2['p2']['frame'].append(step.opponent.todict())
+    buffer_p2['p1']['frame'].append(step.ai.todict())
+    if step.opponent.stock == -1:
+        plays.append(buffer_p1)
+        buffer_p1 = {
+            'date': datetime.now(),
+            'global_date': now,
+            'p1': {
+                'character':p1_name,
+                'frame':[]
+            },
+            'p2': {
+                'character': p2_name,
+                'frame': []
+            }
+        }
+    if step.ai.stock == -1:
+        plays.append(buffer_p2)
+        buffer_p2 = {
+            'date': datetime.now(),
+            'global_date': now,
+            'p1': {
+                'character':p2_name,
+                'frame':[]
+            },
+            'p2': {
+                'character': p1_name,
+                'frame': []
+            }
+        }
     step = env.step(player)
     # if step.opponent.dead_fall:
     #     print ("Deadfall!!!!")
@@ -100,10 +145,12 @@ while step.gamestate.menu_state == melee.enums.Menu.IN_GAME:
     # print ("Vector:", step.opponent.x - step.ai.x, step.opponent.y - step.ai.y)
     # print ("Distance:", sqrt((step.opponent.x - step.ai.x) ** 2 + (step.opponent.y - step.ai.y) ** 2))
 
-mongo_id = collection.insert_one(game)
-collection.update_one({'_id': mongo_id.inserted_id}, {"$set": {
-    'p2.frame': p2_frame
-}}, upsert=False)
+print('Saving...')
+[print ('Saved:', collection.insert_one(p).inserted_id) for p in plays]
+# mongo_id = collection.insert_one(game)
+# collection.update_one({'_id': mongo_id.inserted_id}, {"$set": {
+#     'p2.frame': p2_frame
+# }}, upsert=False)
 print('Saved.')
 
 while True:

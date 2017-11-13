@@ -66,6 +66,7 @@ class PlayerDelta(object):
         self.move_x = new_state.x - prev_state.x
         self.move_y = new_state.y - prev_state.y
         self.percent =  new_state.percent - prev_state.percent
+        self.total_percent = new_state.percent
         self.hitstun_left = new_state.hitstun_frames_left
         self.hitted = (self.percent > 0)
         self.hit = False
@@ -94,8 +95,8 @@ class PlayerDelta(object):
         # self.LOOPING_ATTACK_MIDDLE = (act == Action.LOOPING_ATTACK_MIDDLE)
         # self.LOOPING_ATTACK_END = (act == Action.LOOPING_ATTACK_END)
         # self.DASH_ATTACK = (act == Action.DASH_ATTACK)
-        self.ftilt = (act == Action.FTILT_HIGH or act == Action.FTILT_HIGH_MID or \
-                        act == Action.FTILT_MID or act == Action.FTILT_LOW_MID or \
+        self.ftilt = (act == Action.FTILT_HIGH or act == Action.FTILT_HIGH_MID or
+                        act == Action.FTILT_MID or act == Action.FTILT_LOW_MID or
                         act == Action.FTILT_LOW)
         # self.FTILT_HIGH_MID = (act == Action.FTILT_HIGH_MID)
         # self.FTILT_MID = (act == Action.FTILT_MID)
@@ -161,6 +162,8 @@ class PlayerDelta(object):
         # self.hitbox_3_y = new_state.hitbox_3_y
         # self.hitbox_4_x = new_state.hitbox_4_x
         # self.hitbox_4_y = new_state.hitbox_4_y
+        self.is_attacking = (new_state.hitbox_1_status or new_state.hitbox_2_status or
+                new_state.hitbox_3_status or new_state.hitbox_4_status)
         self.vector = [0, 0]
         self.projectiles = []
 
@@ -168,7 +171,7 @@ class PlayerDelta(object):
         return {
             # "facing": self.facing,
             "invulnerable": self.invulnerable,
-            "invulnerability_left": self.invulnerability_left,
+            # "invulnerability_left": self.invulnerability_left,
             "on_ground": self.on_ground,
             "x": self.x,
             "y": self.y,
@@ -178,9 +181,10 @@ class PlayerDelta(object):
             "move_x": self.move_x,
             "move_y": self.move_y,
             "percent": self.percent,
+            "total_percent": self.total_percent,
             "hitstun_left": self.hitstun_left,
             "hit": self.hit,
-            "opponent_percent": self.opponent_percent,
+            # "opponent_percent": self.opponent_percent,
             # "NEUTRAL_ATTACK_1": self.NEUTRAL_ATTACK_1,
             # "NEUTRAL_ATTACK_2": self.NEUTRAL_ATTACK_2,
             # "NEUTRAL_ATTACK_3": self.NEUTRAL_ATTACK_3,
@@ -215,9 +219,9 @@ class PlayerDelta(object):
             # "DAIR_LANDING": self.DAIR_LANDING,
             "dead": self.dead,
             "percent": self.percent,
-            "shield_reflect": self.shield_reflect,
-            "shield_release": self.shield_release,
-            "knee_bend": self.knee_bend,
+            # "shield_reflect": self.shield_reflect,
+            # "shield_release": self.shield_release,
+            # "knee_bend": self.knee_bend,
             "falling": self.falling,
             "falling_aerial": self.falling_aerial,
             "dead_fall": self.dead_fall,
@@ -231,7 +235,7 @@ class PlayerDelta(object):
             "ground_roll_forward_up": self.ground_roll_forward_up,
             "ground_roll_backward_up": self.ground_roll_backward_up,
             "tech_miss_down": self.tech_miss_down,
-            "lying_ground_down": self.lying_ground_down,
+            # "lying_ground_down": self.lying_ground_down,
             "getup_attack": self.getup_attack,
             "grab": self.grab,
             "grab_break": self.grab_break,
@@ -245,7 +249,7 @@ class PlayerDelta(object):
             "sliding_off_edge": self.sliding_off_edge,
             "edge_hanging": self.edge_hanging,
             "off_stage": self.off_stage,
-            "stock": self.stock,
+            # "stock": self.stock,
             "iasa": self.iasa,
             "hitlag_left": self.hitlag_left,
             # "moonwalkwarning": self.moonwalkwarning,
@@ -267,5 +271,6 @@ class PlayerDelta(object):
             # "hitbox_4_y": self.hitbox_4_y,
             "edge_catching": self.edge_catching,
             "distance_vector": self.vector,
-            "projectiles": self.projectiles
+            "is_attacking": self.is_attacking
+            # "projectiles": self.projectiles
         }
