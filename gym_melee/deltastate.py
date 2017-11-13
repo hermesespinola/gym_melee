@@ -3,7 +3,7 @@ from copy import copy
 
 DEAD_ACTIONS = (Action.DEAD_DOWN, Action.DEAD_LEFT, Action.DEAD_RIGHT,
                 Action.DEAD_FLY_STAR, Action.DEAD_FLY, Action.DEAD_FLY_SPLATTER,
-                Action.DEAD_FLY_SPLATTER_FLAT, Action.DEAD_FALL)
+                Action.DEAD_FLY_SPLATTER_FLAT)
 
 def separate_projectiles(gamestate, op_name, ai_name):
     op_proj = []
@@ -164,7 +164,11 @@ class PlayerDelta(object):
         # self.hitbox_4_y = new_state.hitbox_4_y
         self.is_attacking = (new_state.hitbox_1_status or new_state.hitbox_2_status or
                 new_state.hitbox_3_status or new_state.hitbox_4_status)
+        self.self_kill = self.stock == -1 and not self.dead
         self.vector = [0, 0]
+        # DEAD_ACTIONS = (Action.DEAD_DOWN, Action.DEAD_LEFT, Action.DEAD_RIGHT,
+        #                 Action.DEAD_FLY_STAR, Action.DEAD_FLY, Action.DEAD_FLY_SPLATTER,
+        #                 Action.DEAD_FLY_SPLATTER_FLAT)
         self.projectiles = []
 
     def todict(self):
