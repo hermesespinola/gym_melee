@@ -26,6 +26,12 @@ parser.add_argument('--character', '-c', default='fox',
                     help='The ai selected character')
 parser.add_argument('--stage', '-s', default='battlefield',
                     help='The selected stage')
+parser.add_argument('--p1name', '-q',
+                    help='Name for p1',
+                    default='Jorge')
+parser.add_argument('--p2name', '-w',
+                    help='Name for p2',
+                    default='Carlos')
 
 args = parser.parse_args()
 character = args.character
@@ -69,6 +75,8 @@ p2_name = str(step.gamestate.player[args.port].character)[10:]
 now = datetime.now()
 
 buffer_p1 = {
+    'name': args.p1name,
+    'flip': False,
     'date': datetime.now(),
     'global_date': now,
     'p1': {
@@ -81,6 +89,8 @@ buffer_p1 = {
     }
 }
 buffer_p2 = {
+    'name': args.p2name,
+    'flip': True,
     'date': datetime.now(),
     'global_date': now,
     'p1': {
@@ -104,6 +114,8 @@ while step.gamestate.menu_state == melee.enums.Menu.IN_GAME:
     if step.opponent.stock == -1:
         plays.append(buffer_p1)
         buffer_p1 = {
+            'name': args.p1name,
+            'flip': False,
             'date': datetime.now(),
             'global_date': now,
             'p1': {
@@ -118,6 +130,8 @@ while step.gamestate.menu_state == melee.enums.Menu.IN_GAME:
     if step.ai.stock == -1:
         plays.append(buffer_p2)
         buffer_p2 = {
+            'name': args.p2name,
+            'flip': True,
             'date': datetime.now(),
             'global_date': now,
             'p1': {
@@ -146,7 +160,12 @@ while step.gamestate.menu_state == melee.enums.Menu.IN_GAME:
         print('Self kill!!! Bitches!!!')
     # print ("Vector:", step.opponent.x - step.ai.x, step.opponent.y - step.ai.y)
     # print ("Distance:", sqrt((step.opponent.x - step.ai.x) ** 2 + (step.opponent.y - step.ai.y) ** 2))
-
+winner = plays[-1]['flip']
+for p in plays:
+    if not p['flip']:
+        p['winner'] = winner
+    else:
+        p['winner'] = not winner
 print('Saving...')
 # [print ('Saved:', collection.insert_one(p).inserted_id) for p in plays]
 # mongo_id = collection.insert_one(game)
