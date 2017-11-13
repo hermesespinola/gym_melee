@@ -20,6 +20,7 @@ def userstat(name):
     client = MongoClient('mongodb://hermes:hermes@info.gda.itesm.mx:27017/melee')
     db = client['melee']
     collection = db['games']
+    dest = db['users']
     stocks = collection.find({'name': name})
     n = len(stocks)
     stats = []
@@ -60,4 +61,6 @@ def userstat(name):
             'outliers': outliers[k]
         }
 
-    db.test.replace_one({'name': name}, fullstats, True)
+    dest.replace_one({'name': name}, fullstats, True)
+    for s in stocks:
+        collection.replace_one({'_id': s['_id']}, s)
