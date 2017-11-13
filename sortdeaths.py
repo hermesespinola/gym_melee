@@ -9,7 +9,7 @@ one = collection.find()[0]
 print(one['date'])
 
 
-for i in one['p1']['frame']:
+# for i in one['p1']['frame']:
 
 
 print('=======================================================')
