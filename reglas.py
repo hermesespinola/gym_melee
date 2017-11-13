@@ -41,7 +41,7 @@ def reward_attack(this_player, opponent):
     for i in range( 0, len(this_player) ):
         """ Iterate over each frame data """
         # Current distance between players
-        dist = sqrt(p1_frames[i]["distance_vector"][0] ** 2 + p1_frames[i]["distance_vector"][1] ** 2)
+        dist = sqrt(this_player[i]["distance_vector"][0] ** 2 + this_player[i]["distance_vector"][1] ** 2)
 
         # Grab succeed
         if ( this_player[i]['grab'] or this_player[i]['grab_running'] ) and opponent[i + 1]['grabbed']:
@@ -51,7 +51,7 @@ def reward_attack(this_player, opponent):
                 reward += 1
         # Grab failed
         else:
-            reward -= 1
+            -== 1
         """ Add GRAB_PUMMEL to DB
         # Damage p2 with grab
         if this_player[i]['grab_pummel']:
@@ -64,7 +64,7 @@ def reward_attack(this_player, opponent):
                 reward += opponent[i]['percent']
             # Attacking ghosts
             if dist > 20:
-                reward -= 1
+                -== 1
         # Below defenseless opponent
         if (not this_player[i]["hitstun_left"] or not this_player[i]["hitlag_left"]) \
             and this_player[i]["distance_vector"][1] > 0:
@@ -74,55 +74,55 @@ def reward_attack(this_player, opponent):
                 reward += 4
         # Opponent broke from grab
         if opponent[i]['grab_break']:
-            reward -= - 1
+            -== - 1
         # Damaged by opponent
         if this_player[i]['percent'] > 0:
             if this_player[i]['crouching']:
-                reward -= this_player[i]['percent'] / 2
+                -== this_player[i]['percent'] / 2
             else:
-                reward -= this_player[i]['percent']
+                -== this_player[i]['percent']
         # Defenseless above opponent
         if (not opponent[i]["hitstun_left"] or not opponent[i]["hitlag_left"]) \
             and opponent[i]["distance_vector"][1] > 0:
             if this_player[i]['falling_aerial']:
-                reward -= 2
+                -== 2
             elif this_player[i]['dead_fall']:
-                reward -= 4
+                -== 4
 
 
     return reward
 
-def reward_defense(p1_frames, p2_frames):
+def reward_defense(this_player, opponent):
     """ Count rewards for defense """
-    def_reward = 0
-    dist = 0
-    for i in range( 0, len(p1_frames) ):
-        dist = sqrt(p1_frames[i]["distance_vector"][0] ** 2 + p1_frames[i]["distance_vector"][1] ** 2)
-        # Good Values
-        if p1_frames[i]['shield_stun']:
-            def_reward = def_reward + 3
-        if p1_frames[i]['airdodge'] and p2_frames[i]["is_attacking"] and dist <= 20:
-            def_reward = def_reward + 7
-        if p1_frames[i]['spotdodge'] and p2_frames[i]["is_attacking"] and dist <= 20:
-            def_reward = def_reward + 7
-        if p1_frames[i]['crouching'] and p2_frames[i]['hit']:
-            def_reward = def_reward + 2
+    reward = 0                          # Init return value
+    dist = 0                                # Init distance
+    for i in range( 0, len(this_player) ):
+        # Current distance between players
+        dist = sqrt(this_player[i]["distance_vector"][0] ** 2 + this_player[i]["distance_vector"][1] ** 2)
         
-        # Negative Values
-        if p1_frames[i]['tech_miss_down']:
-            def_reward = def_reward - 1
-        if p1_frames[i]['tumbling']:
-            def_reward = def_reward - 1
+        # Succesfull defense
+        if this_player[i]['shield_stun']:
+            reward += 1
+        # Useless defense
+        if this_player[i]['shield'] and dist > 20:
+            reward -= 1
+        # Useless spotdodge
+        if this_player[i]['spotdodge'] and dist > 20:
+            reward -= 1
+        # Succesfull airdodge
+        if this_player[i]['airdodge'] and opponent[i]["is_attacking"] and dist <= 20:
+            reward += 2
+        # Succesfull spotdodge
+        if this_player[i]['spotdodge'] and opponent[i]["is_attacking"] and dist <= 20:
+            reward += 3
+        # Missed tech
+        if this_player[i]['tech_miss_down']:
+            reward = -= 1
+        # Is tumbling
+        if this_player[i]['tumbling']:
+            reward = -= 1
 
-
-        if def_reward < 0:
-            # Meterlo a una coleccion de frames negativos
-            print("Frame malo: " + str(def_reward))
-
-        if def_reward > 0:
-            # Meterlo a una coleccion de frmaes positivos
-            print("Frame bueno: " + str(def_reward))
-        def_reward = 0
+    return reward
 
 def reward_combos(frames):
     """ Count rewards for combos """
