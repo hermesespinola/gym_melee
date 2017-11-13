@@ -183,8 +183,37 @@ def reward_defense(this_player, opponent):
 def reward_combos(this_player, opponent):
     """ Count rewards for combos """
     #hit stun
-    pass   
-    
+    # TODO Checar si hitstun comienza con hit o depues de hitlag
+    # TODO Threshold para non-true combos
+    # TODO get reward
+    combos = []
+    current = None
+    for i in range(len(this_player)):
+        if current is None:
+            current = {
+                'percent': 0,
+                'hits': 0,
+                'ends_offstage': False
+                'kills': False
+            }
+
+        pf = this_player[i]
+        of = opponent[i]
+
+        if of['percent'] > 0:
+            current['percent'] += of['percent']
+            current['hits'] += 1
+
+        if of['stock'] == -1:
+            current['kills'] = True
+
+        if of['hitstun_left'] == 0:
+            current['ends_offstage'] = of['off_stage']
+            if current['hits'] > 1:
+                combos.append(current)
+            current = None
+    pass
+
 #shieldstunstuck
 
 def check_deads(frames):
