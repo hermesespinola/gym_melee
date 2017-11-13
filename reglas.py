@@ -43,44 +43,65 @@ def reward_attack(this_player, opponent):
         # Current distance between players
         dist = sqrt(this_player[i]["distance_vector"][0] ** 2 + this_player[i]["distance_vector"][1] ** 2)
 
-        # Grab succeed
-        if ( this_player[i]['grab'] or this_player[i]['grab_running'] ) and opponent[i + 1]['grabbed']:
-            if opponent[i]['shield']:
-                reward += 4
-            else:
+        # Charging smash
+        if this_player[i]['charging_smash']:
+            while this_player[i]['charging_smash'] and i < len(this_player):
+                i += 1
+            # Frame ended
+            if i < len(this_player):
+                break
+            # Smash did damage
+            elif opponent[i]['percent'] > 0:
+                reward += 10
+            # Smash hit shield
+            elif opponent[i]['shield_stun'] > 0:
                 reward += 1
-        # Grab failed
-        if ( this_player[i]['grab'] or this_player[i]['grab_running'] ) and not opponent[i + 1]['grabbed']:
-            reward -= 1
-        """ Add GRAB_PUMMEL to DB
-        # Damage p2 with grab
-        if this_player[i]['grab_pummel']:
-            reward += 1
-        """
-        # Attack
-        if this_player[i]['is_attacking']:     
-            # Success                               
-            if opponent[i]['percent'] > 0:                                 
-                reward += opponent[i]['percent']
-            # Attacking ghosts
-            if dist > 20:
-                reward -= 1
-        # Below defenseless opponent
-        if (not this_player[i]["hitstun_left"] or not this_player[i]["hitlag_left"]) \
-            and this_player[i]["distance_vector"][1] > 0:
-            if opponent[i]['falling_aerial']:
-                reward += 2
-            elif opponent[i]['dead_fall']:
-                reward += 4
-        # Opponent broke from grab
-        if opponent[i]['grab_break']:
-            reward -= 1
-        # Damaged by opponent
-        if this_player[i]['percent'] > 0:
-            if this_player[i]['crouching']:
-               reward -= this_player[i]['percent'] / 2
+            # Smash missed or useless
             else:
-               reward -= this_player[i]['percent']
+                reward -= 5
+        else:
+            # Grab succeed
+            if ( this_player[i]['grab'] or this_player[i]['grab_running'] ) and opponent[i + 1]['grabbed']:
+                if opponent[i]['shield']:
+                    reward += 4
+                else:
+                    reward += 1
+            # Grab failed
+            if ( this_player[i]['grab'] or this_player[i]['grab_running'] ) and not opponent[i + 1]['grabbed']:
+                reward -= 1
+            """ Add GRAB_PUMMEL to DB
+            # Damage p2 with grab
+            if this_player[i]['grab_pummel']:
+                reward += 1
+            """
+            # Attack
+            if this_player[i]['is_attacking']:     
+                # Success                               
+                if opponent[i]['percent'] > 0:                                 
+                    reward += opponent[i]['percent']
+                # Attacking ghosts
+                if dist > 20:
+                    reward -= 1
+                # Trade off
+                if opponent[i]['percent'] > 0 and this_player[i]['percent'] > 0:
+                    reward += (this_player[i]['percent'] - opponent[i]['percent'])
+            # Below defenseless opponent
+            if (not this_player[i]["hitstun_left"] or not this_player[i]["hitlag_left"]) \
+                and this_player[i]["distance_vector"][1] > 0:
+                if opponent[i]['falling_aerial']:
+                    reward += 2
+                elif opponent[i]['dead_fall']:
+                    reward += 4
+            # Opponent broke from grab
+            if opponent[i]['grab_break']:
+                reward -= 1
+            # Damaged by opponent
+            if this_player[i]['percent'] > 0:
+                if this_player[i]['crouching']:
+                reward -= this_player[i]['percent'] / 2
+                else:
+                reward -= this_player[i]['percent']
+                
     return reward
 
 def reward_defense(this_player, opponent):
@@ -93,49 +114,78 @@ def reward_defense(this_player, opponent):
         # Next didtance
         dist_next = sqrt(this_player[i + 1]['distance_vector'][0] ** 2 + this_player[i + 1]['distance_vector'][1] ** 2)
 
-        # Succesfull defense
-        if this_player[i]['shield_stun']:
-            reward += 1
-        # Useless defense
-        if this_player[i]['shield'] and dist > 20:
-            reward -= 1
-        # Useless spotdodge
-        if this_player[i]['spotdodge'] and dist > 20:
-            reward -= 1
-        # Succesfull airdodge
-        if this_player[i]['airdodge'] and opponent[i]['is_attacking'] and dist <= 20:
-            reward += 2
-        # Succesfull spotdodge
-        if this_player[i]['spotdodge'] and opponent[i]['is_attacking'] and dist <= 20:
-            reward += 3
-        # Missed tech
-        if this_player[i]['tech_miss_down']:
-            reward -= 2
-        # Is tumbling
-        if this_player[i]['tumbling']:
-            reward -= 1
-        # Good roll
-        if dist <= 20: #and opponent[i]['is_attacking']:
-            if dist_next > dist and (this_player[i]['roll_forward'] or this_player[i]['roll_backward']):
+        # Spotdodging
+        if this_player[i]['spotdodge']:
+            while this_player[i]['spotdodge'] and i < len(this_player):
+                # Succesfull spotdodge
+                if opponent[i]['is_attacking'] and dist <= 20:
+                    reward += 3
+                # Useless spotdodge
+                if dist > 20:
+                    reward -= 1
+                i += i
+            # Frame ended
+            if i < len(this_player):
+                break
+            # Spotdodge ended and you was hit by opponent
+            elif this_player[i]['percent'] > 0:
+                reward -= 3
+        # Ground rolling
+        elif this_player[i]['ground_roll_forward_up'] or this_player[i]['ground_roll_backward_up']:
+            while this_player[i]['ground_roll_forward_up'] or this_player[i]['ground_roll_backward_up'] and i < len(this_player):
+                i += 1
+            # Frame ended
+            if i < len(this_player):
+                break
+            # Ground rolling ended and you was hit by opponent
+            elif this_player[i]['percent'] > 0:
+                reward -= 3
+        # Rolling
+        elif this_player[i]['roll_forward'] or this_player[i]['roll_backward']:
+            while this_player[i]['roll_forward'] or this_player[i]['roll_backward'] and i < len(this_player):
+                # Good roll
+                if dist <= 20 and opponent[i]['is_attacking']:
+                    if dist_next > dist and (this_player[i]['roll_forward'] or this_player[i]['roll_backward']):
+                        reward += 2
+                i += 1
+            # Frame ended
+            if i < len(this_player):
+                break
+            # Rolling ended and you was hit by opponent
+            elif this_player[i]['percent'] > 0:
+                reward -= 3
+        else:
+            # Succesfull defense
+            if this_player[i]['shield_stun']:
+                reward += 1
+            # Useless defense
+            if this_player[i]['shield'] and dist > 20:
+                reward -= 1
+            # Succesfull airdodge
+            if this_player[i]['airdodge'] and opponent[i]['is_attacking'] and dist <= 20:
                 reward += 2
-        # Defenseless above opponent
-        if (not opponent[i]["hitstun_left"] or not opponent[i]["hitlag_left"]) \
-            and opponent[i]["distance_vector"][1] > 0:
-            if this_player[i]['falling_aerial']:
-               reward -= 2
-            elif this_player[i]['dead_fall']:
-               reward -= 4
+            # Missed tech
+            if this_player[i]['tech_miss_down']:
+                reward -= 2
+            # Is tumbling
+            if this_player[i]['tumbling']:
+                reward -= 1
+            # Defenseless above opponent
+            if (not opponent[i]["hitstun_left"] or not opponent[i]["hitlag_left"]) \
+                and opponent[i]["distance_vector"][1] > 0:
+                if this_player[i]['falling_aerial']:
+                    reward -= 2
+                elif this_player[i]['dead_fall']:
+                    reward -= 4
+
     return reward
 
-def reward_combos(frames):
+def reward_combos(this_player, opponent):
     """ Count rewards for combos """
     #hit stun
-    pass
-
-def reward_long_actions(frames):
-    """ Count rewar for long actions"""
-    pass
-    #charging smash, shieldstunstuck, spotdodge fail, ground roll, roll, consecutive rolls
+    pass   
+    
+#shieldstunstuck
 
 def check_deads(frames):
     """ Check whether if was suicide or killed by opponent """
