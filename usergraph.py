@@ -19,12 +19,13 @@ stats = userscol.find({'name': name})
 pprint.pprint(stats)
 
 for k in stocks[0]['stats'].keys():
-    plt.plot([s[k] for s in stocks], label = k)
+    plt.plot([s['stats'][k] for s in stocks], label = k)
+    print(k, 'outliers:')
+    pprint.pprint(stats[k]['outliers'])
 
 plt.xlabel('Date')
 plt.ylabel('Score')
 plt.title(name)
 plt.grid(True)
-# plt.savefig("test.png")
 plt.legend()
 plt.show()
