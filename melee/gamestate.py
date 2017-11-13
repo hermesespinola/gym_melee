@@ -44,6 +44,8 @@ class GameState:
         #Helper names to keep track of us and our opponent
         self.ai_state = self.player[dolphin.ai_port]
         self.opponent_state = self.player[dolphin.opponent_port]
+        self.ai_port = dolphin.ai_port
+        self.opponent_port = dolphin.opponent_port
         #Read in the action data csv
         with open(path + "/actiondata.csv") as csvfile:
             #A list of dicts containing the frame data
@@ -599,3 +601,12 @@ class Projectile:
         thelist.append(int(self.opponent_owned))
         thelist.append(self.subtype.value)
         return thelist
+
+    def todict(self):
+        return {
+            'x': self.x,
+            'y': self.y,
+            'x_speed': self.x_speed,
+            'y_speed': self.y_speed,
+            'subtype': str(self.subtype)[18:] # Or self.subtype.value?
+        }
