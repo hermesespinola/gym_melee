@@ -164,8 +164,6 @@ class PlayerDelta(object):
         # self.hitbox_4_y = new_state.hitbox_4_y
         self.is_attacking = (new_state.hitbox_1_status or new_state.hitbox_2_status or
                 new_state.hitbox_3_status or new_state.hitbox_4_status)
-        if self.dead:
-            print(act)
         self.self_kill = self.stock == -1 and not self.dead
         self.vector = [0, 0]
         # DEAD_ACTIONS = (Action.DEAD_DOWN, Action.DEAD_LEFT, Action.DEAD_RIGHT,
