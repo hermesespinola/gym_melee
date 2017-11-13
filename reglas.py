@@ -50,8 +50,8 @@ def reward_attack(this_player, opponent):
             else:
                 reward += 1
         # Grab failed
-        else:
-            -== 1
+        if ( this_player[i]['grab'] or this_player[i]['grab_running'] ) and not opponent[i + 1]['grabbed']:
+            reward -= 1
         """ Add GRAB_PUMMEL to DB
         # Damage p2 with grab
         if this_player[i]['grab_pummel']:
@@ -64,7 +64,7 @@ def reward_attack(this_player, opponent):
                 reward += opponent[i]['percent']
             # Attacking ghosts
             if dist > 20:
-                -== 1
+                reward -= 1
         # Below defenseless opponent
         if (not this_player[i]["hitstun_left"] or not this_player[i]["hitlag_left"]) \
             and this_player[i]["distance_vector"][1] > 0:
@@ -74,32 +74,25 @@ def reward_attack(this_player, opponent):
                 reward += 4
         # Opponent broke from grab
         if opponent[i]['grab_break']:
-            -== - 1
+            reward -= 1
         # Damaged by opponent
         if this_player[i]['percent'] > 0:
             if this_player[i]['crouching']:
-                -== this_player[i]['percent'] / 2
+               reward -= this_player[i]['percent'] / 2
             else:
-                -== this_player[i]['percent']
-        # Defenseless above opponent
-        if (not opponent[i]["hitstun_left"] or not opponent[i]["hitlag_left"]) \
-            and opponent[i]["distance_vector"][1] > 0:
-            if this_player[i]['falling_aerial']:
-                -== 2
-            elif this_player[i]['dead_fall']:
-                -== 4
-
-
+               reward -= this_player[i]['percent']
     return reward
 
 def reward_defense(this_player, opponent):
     """ Count rewards for defense """
-    reward = 0                          # Init return value
+    reward = 0                              # Init return value
     dist = 0                                # Init distance
     for i in range( 0, len(this_player) ):
         # Current distance between players
-        dist = sqrt(this_player[i]["distance_vector"][0] ** 2 + this_player[i]["distance_vector"][1] ** 2)
-        
+        dist = sqrt(this_player[i]['distance_vector'][0] ** 2 + this_player[i]['distance_vector'][1] ** 2)
+        # Next didtance
+        dist_next = sqrt(this_player[i + 1]['distance_vector'][0] ** 2 + this_player[i + 1]['distance_vector'][1] ** 2)
+
         # Succesfull defense
         if this_player[i]['shield_stun']:
             reward += 1
@@ -110,18 +103,28 @@ def reward_defense(this_player, opponent):
         if this_player[i]['spotdodge'] and dist > 20:
             reward -= 1
         # Succesfull airdodge
-        if this_player[i]['airdodge'] and opponent[i]["is_attacking"] and dist <= 20:
+        if this_player[i]['airdodge'] and opponent[i]['is_attacking'] and dist <= 20:
             reward += 2
         # Succesfull spotdodge
-        if this_player[i]['spotdodge'] and opponent[i]["is_attacking"] and dist <= 20:
+        if this_player[i]['spotdodge'] and opponent[i]['is_attacking'] and dist <= 20:
             reward += 3
         # Missed tech
         if this_player[i]['tech_miss_down']:
-            reward = -= 1
+            reward -= 2
         # Is tumbling
         if this_player[i]['tumbling']:
-            reward = -= 1
-
+            reward -= 1
+        # Good roll
+        if dist <= 20: #and opponent[i]['is_attacking']:
+            if dist_next > dist and (this_player[i]['roll_forward'] or this_player[i]['roll_backward']):
+                reward += 2
+        # Defenseless above opponent
+        if (not opponent[i]["hitstun_left"] or not opponent[i]["hitlag_left"]) \
+            and opponent[i]["distance_vector"][1] > 0:
+            if this_player[i]['falling_aerial']:
+               reward -= 2
+            elif this_player[i]['dead_fall']:
+               reward -= 4
     return reward
 
 def reward_combos(frames):
