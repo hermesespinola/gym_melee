@@ -1,9 +1,11 @@
 #!/usr/bin/python3
 from pymongo import MongoClient
 from datetime import datetime
+from reglas import Frame_rewards
 
-def check(A):
-    return {'total': 200, 'offensive': 300, 'defensive': -100}
+def check(one):
+    return Frame_rewards(one)
+    # return {'total': 200, 'offensive': 300, 'defensive': -100}
 
 def outs(avg, stddev, k, games):
     stds = 3
