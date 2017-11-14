@@ -17,7 +17,7 @@ def separate_projectiles(gamestate, op_name, ai_name):
 
 class DeltaState(object):
     """Defines the change in player and opponent state between frames."""
-    def __init__(self, gamestate):
+    def __init__(self, gamestate, framedata):
         self.prev_opponent_state = gamestate.opponent_state
         self.prev_ai_state = gamestate.ai_state
         self.opponent = PlayerDelta(self.prev_opponent_state, gamestate.opponent_state)
@@ -29,6 +29,7 @@ class DeltaState(object):
         self.opponent.vector = [self.opponent.x - self.ai.x, self.opponent.y - self.ai.y]
         self.opponent.vector = [self.ai.x - self.opponent.x, self.ai.y - self.opponent.y]
         self.gamestate = gamestate
+        self.framedata = framedata
 
     def step(self):
         self.opponent = PlayerDelta(self.prev_opponent_state, self.gamestate.opponent_state)
@@ -43,6 +44,10 @@ class DeltaState(object):
         self.ai_name = str(self.gamestate.player[self.gamestate.ai_port].character)[10:]
         self.opponent.projectiles, self.ai.projectiles = \
                 separate_projectiles(self.gamestate, self.op_name, self.ai_name)
+
+        self.opponent.attack_state = self.framedata.attackstate_simple(self.gamestate.player[self.gamestate.opponent_port])
+        self.ai.attack_state = self.framedata.attackstate_simple(self.gamestate.player[self.gamestate.ai_port])
+
         self.opponent.vector = [self.opponent.x - self.ai.x, self.opponent.y - self.ai.y]
         self.opponent.vector = [self.ai.x - self.opponent.x, self.ai.y - self.opponent.y]
 
@@ -73,6 +78,8 @@ class PlayerDelta(object):
         self.opponent_percent = 0
         act = new_state.action
         prev_act = prev_state.action
+        self.grab_pummel = act == Action.GRAB_PUMMEL
+        self.grab_running = act == Action.GRAB_RUNNING
         self.stock = new_state.stock - prev_state.stock
         self.dead = prev_act not in DEAD_ACTIONS and act in DEAD_ACTIONS
         self.percent = new_state.percent - prev_state.percent
@@ -87,17 +94,21 @@ class PlayerDelta(object):
         self.crouching = (act == Action.CROUCHING)
         self.crouch_end = (act == Action.CROUCH_END)
         self.landing = (act == Action.LANDING)
+
         self.landing_special = (act == Action.LANDING_SPECIAL)
-        # self.NEUTRAL_ATTACK_1 = (act == Action.NEUTRAL_ATTACK_1)
-        # self.NEUTRAL_ATTACK_2 = (act == Action.NEUTRAL_ATTACK_2)
-        # self.NEUTRAL_ATTACK_3 = (act == Action.NEUTRAL_ATTACK_3)
+        self.NEUTRAL_ATTACK = (act == Action.NEUTRAL_ATTACK_1) or \
+                (act == Action.NEUTRAL_ATTACK_2) or \
+                (act == Action.NEUTRAL_ATTACK_3)
+
         # self.LOOPING_ATTACK_START = (act == Action.LOOPING_ATTACK_START)
         # self.LOOPING_ATTACK_MIDDLE = (act == Action.LOOPING_ATTACK_MIDDLE)
         # self.LOOPING_ATTACK_END = (act == Action.LOOPING_ATTACK_END)
-        # self.DASH_ATTACK = (act == Action.DASH_ATTACK)
-        self.ftilt = (act == Action.FTILT_HIGH or act == Action.FTILT_HIGH_MID or
-                        act == Action.FTILT_MID or act == Action.FTILT_LOW_MID or
+
+        self.DASH_ATTACK = (act == Action.DASH_ATTACK)
+        self.ftilt = (act == Action.FTILT_HIGH or act == Action.FTILT_HIGH_MID or \
+                        act == Action.FTILT_MID or act == Action.FTILT_LOW_MID or \
                         act == Action.FTILT_LOW)
+
         # self.FTILT_HIGH_MID = (act == Action.FTILT_HIGH_MID)
         # self.FTILT_MID = (act == Action.FTILT_MID)
         # self.FTILT_LOW_MID = (act == Action.FTILT_LOW_MID)
@@ -107,23 +118,26 @@ class PlayerDelta(object):
         # self.fsmash = (act == Action.FSMASH_HIGH or act == Action.FSMASH_MID_HIGH or \
         #             act == Action.FSMASH_MID or act == Action.FSMASH_MID_LOW or \
         #             act == Action.FSMASH_LOW)
-        # self.FSMASH_HIGH = (act == Action.FSMASH_HIGH)
-        # self.FSMASH_MID_HIGH = (act == Action.FSMASH_MID_HIGH)
-        # self.FSMASH_MID = (act == Action.FSMASH_MID)
-        # self.FSMASH_MID_LOW = (act == Action.FSMASH_MID_LOW)
-        # self.FSMASH_LOW = (act == Action.FSMASH_LOW)
-        # self.UPSMASH = (act == Action.UPSMASH)
-        # self.DOWNSMASH = (act == Action.DOWNSMASH)
-        # self.NAIR = (act == Action.NAIR)
-        # self.FAIR = (act == Action.FAIR)
-        # self.BAIR = (act == Action.BAIR)
-        # self.UAIR = (act == Action.UAIR)
-        # self.DAIR = (act == Action.DAIR)
-        # self.NAIR_LANDING = (act == Action.NAIR_LANDING)
-        # self.FAIR_LANDING = (act == Action.FAIR_LANDING)
-        # self.BAIR_LANDING = (act == Action.BAIR_LANDING)
-        # self.UAIR_LANDING = (act == Action.UAIR_LANDING)
-        # self.DAIR_LANDING = (act == Action.DAIR_LANDING)
+
+        self.fsmash = (act == Action.FSMASH_HIGH) or \
+                (act == Action.FSMASH_MID_HIGH) or \
+                (act == Action.FSMASH_MID) or \
+                (act == Action.FSMASH_MID_LOW) or \
+                (act == Action.FSMASH_LOW)
+
+        self.upsmash = (act == Action.UPSMASH)
+        self.downsmash = (act == Action.DOWNSMASH)
+
+        self.up_b = (act == Action.UP_B_AIR) or (act == Action.UP_B_GROUND)
+        self.down_b = act == Action.DOWN_B_AIR or act == Action.DOWN_B_GROUND or act == Action.DOWN_B_GROUND_START
+        self.neutral_b = act == Action.NEUTRAL_B_CHARGING or act == Action.NEUTRAL_B_ATTACKING  or act == Action.NEUTRAL_B_FULL_CHARGE or act == Action.NEUTRAL_B_CHARGING_AIR or act == Action.NEUTRAL_B_ATTACKING_AIR or act == Action.NEUTRAL_B_FULL_CHARGE_AIR
+
+        self.NAIR = (act == Action.NAIR) or (act == Action.NAIR_LANDING)
+        self.FAIR = (act == Action.FAIR) or (act == Action.FAIR_LANDING)
+        self.BAIR = (act == Action.BAIR) or (act == Action.BAIR_LANDING)
+        self.UAIR = (act == Action.UAIR) or (act == Action.UAIR_LANDING)
+        self.DAIR = (act == Action.DAIR) or (act == Action.DAIR_LANDING)
+
         self.shield = (act == Action.SHIELD_START or act == Action.SHIELD)
         self.shield_stun = (act == Action.SHIELD_STUN)
         self.ground_getup = (act == Action.GROUND_GETUP)
@@ -162,13 +176,8 @@ class PlayerDelta(object):
         # self.hitbox_3_y = new_state.hitbox_3_y
         # self.hitbox_4_x = new_state.hitbox_4_x
         # self.hitbox_4_y = new_state.hitbox_4_y
-        self.is_attacking = (new_state.hitbox_1_status or new_state.hitbox_2_status or
-                new_state.hitbox_3_status or new_state.hitbox_4_status)
         self.self_kill = self.stock == -1 and not self.dead
         self.vector = [0, 0]
-        # DEAD_ACTIONS = (Action.DEAD_DOWN, Action.DEAD_LEFT, Action.DEAD_RIGHT,
-        #                 Action.DEAD_FLY_STAR, Action.DEAD_FLY, Action.DEAD_FLY_SPLATTER,
-        #                 Action.DEAD_FLY_SPLATTER_FLAT)
         self.projectiles = []
 
     def todict(self):
@@ -195,8 +204,9 @@ class PlayerDelta(object):
             # "LOOPING_ATTACK_START": self.LOOPING_ATTACK_START,
             # "LOOPING_ATTACK_MIDDLE": self.LOOPING_ATTACK_MIDDLE,
             # "LOOPING_ATTACK_END": self.LOOPING_ATTACK_END,
-            # "DASH_ATTACK": self.DASH_ATTACK,
-            # "ftilt": self.ftilt,
+            "DASH_ATTACK": self.DASH_ATTACK,
+            "ftilt": self.ftilt,
+            "NEUTRAL_ATTACK": self.NEUTRAL_ATTACK,
             # "FTILT_HIGH": self.FTILT_HIGH,
             # "FTILT_HIGH_MID": self.FTILT_HIGH_MID,
             # "FTILT_MID": self.FTILT_MID,
@@ -204,18 +214,19 @@ class PlayerDelta(object):
             # "FTILT_LOW": self.FTILT_LOW,
             # "UPTILT": self.UPTILT,
             # "DOWNTILT": self.DOWNTILT,
-            # "fsmash": self.fsmash,
+            "fsmash": self.fsmash,
+            "attack_state": self.attack_state,
             # "FSMASH_MID_HIGH": self.FSMASH_MID_HIGH,
             # "FSMASH_MID": self.FSMASH_MID,
             # "FSMASH_MID_LOW": self.FSMASH_MID_LOW,
             # "FSMASH_LOW": self.FSMASH_LOW,
-            # "UPSMASH": self.UPSMASH,
-            # "DOWNSMASH": self.DOWNSMASH,
-            # "NAIR": self.NAIR,
-            # "FAIR": self.FAIR,
-            # "BAIR": self.BAIR,
-            # "UAIR": self.UAIR,
-            # "DAIR": self.DAIR,
+            "upsmash": self.upsmash,
+            "downsmash": self.downsmash,
+            "NAIR": self.NAIR,
+            "FAIR": self.FAIR,
+            "BAIR": self.BAIR,
+            "UAIR": self.UAIR,
+            "DAIR": self.DAIR,
             # "NAIR_LANDING": self.NAIR_LANDING,
             # "FAIR_LANDING": self.FAIR_LANDING,
             # "BAIR_LANDING": self.BAIR_LANDING,
@@ -256,6 +267,10 @@ class PlayerDelta(object):
             # "stock": self.stock,
             "iasa": self.iasa,
             "hitlag_left": self.hitlag_left,
+            "grap_pummel": self.grab_pummel,
+            "up_b": self.up_b,
+            "down_b": self.down_b,
+            "neutral_b": self.neutral_b,
             # "moonwalkwarning": self.moonwalkwarning,
             # "hitbox_1_size": self.hitbox_1_size,
             # "hitbox_2_size": self.hitbox_2_size,
@@ -273,8 +288,7 @@ class PlayerDelta(object):
             # "hitbox_3_y": self.hitbox_3_y,
             # "hitbox_4_x": self.hitbox_4_x,
             # "hitbox_4_y": self.hitbox_4_y,
-            "edge_catching": self.edge_catching,
-            "distance_vector": self.vector,
-            "is_attacking": self.is_attacking
             # "projectiles": self.projectiles
+            "edge_catching": self.edge_catching,
+            "distance_vector": self.vector
         }

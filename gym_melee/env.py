@@ -36,7 +36,7 @@ class MeleeEnv(object):
             opponent_type=self.opponent_type, ai_type=ai_type, logger=self.log)
         # Create our GameState object for the dolphin instance
         self.gamestate = melee.gamestate.GameState(self.dolphin)
-        self.deltastate = DeltaState(self.gamestate)
+        self.deltastate = DeltaState(self.gamestate, self.framedata)
 
         def signal_handler(signal, frame):
             self.dolphin.terminate()
