@@ -1,9 +1,11 @@
 #!/usr/bin/python3
 from pymongo import MongoClient
 from datetime import datetime
+from reglas import Frame_rewards
 
-def check(A):
-    return {'a': True}
+def check(one):
+    return Frame_rewards(one)
+    # return {'total': 200, 'offensive': 300, 'defensive': -100}
 
 def outs(avg, stddev, k, games):
     stds = 3
@@ -22,37 +24,41 @@ def userstat(name):
     collection = db['games']
     dest = db['users']
     stocks = collection.find({'name': name})
-    n = len(stocks)
+    n = stocks.count()
     stats = []
     for s in stocks:
         s['stats'] = check(s)
+        collection.update_one({'_id': s['_id']}, {"$set": {
+            'stats': s['stats']
+        }}, upsert=True)
         stats.append(s['stats'])
     avg = {}
     stddev = {}
     outliers = {}
 
-    for k in stats[0].keys:
-        avg[k] = stats[k]
+    for k in stats[0].keys():
+        avg[k] = stats[0][k]
     for s in stats[1:]:
         for k in s.keys():
             avg[k] += s[k]
     for k in avg.keys():
         avg[k] /= n
 
-    for k in stats[0].keys:
-        stddev[k] = (stats[k] - avg[k]) ** 2
+    for k in stats[0].keys():
+        stddev[k] = (stats[0][k] - avg[k]) ** 2
     for s in stats[1:]:
         for k in s.keys():
-            avg[k] += (s[k] - avg[k]) ** 2
-    for k in avg.keys():
-        avg[k] = (avg[k] / (n - 1)) ** (1/2)
+            stddev[k] += (s[k] - avg[k]) ** 2
+    for k in stddev.keys():
+        stddev[k] = (stddev[k] / (n - 1)) ** (1/2)
 
     for k in avg.keys():
         outliers[k] = outs(avg[k], stddev[k], k, stocks)
 
     fullstats = {
         'name': name,
-        'date': datetime.now()
+        'date': datetime.now(),
+        'stock_count': n
     }
     for k in avg.keys():
         fullstats[k] = {
@@ -62,5 +68,5 @@ def userstat(name):
         }
 
     dest.replace_one({'name': name}, fullstats, True)
-    for s in stocks:
-        collection.replace_one({'_id': s['_id']}, s)
+
+userstat('Gerardo')

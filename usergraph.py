@@ -14,12 +14,12 @@ name = argv[1]
 print('Plotting for' , name, '\b...')
 
 stocks = sorted(gamescol.find({'name': name}, {'p1.frame': False, 'p2.frame': False}), key = lambda s: s['date'])
-stats = userscol.find({'name': name})
+stats = userscol.find_one({'name': name})
 
-pprint.pprint(stats)
+# pprint.pprint(stats)
 
 for k in stocks[0]['stats'].keys():
-    plt.plot([s['stats'][k] for s in stocks], label = k)
+    plt.plot([s['stats'][k] for s in stocks.copy()], label = k)
     print(k, 'outliers:')
     pprint.pprint(stats[k]['outliers'])
 

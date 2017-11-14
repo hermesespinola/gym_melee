@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 from math import sqrt
 
-def Frame_rewards(id):
+def Frame_rewards_by_id(id):
     """Calculate total rewards for specific game Id.
 
     :param id: A string, the game id from MongoDB
@@ -14,6 +14,14 @@ def Frame_rewards(id):
 
     # Get the specific game
     one = collection.find_one( {"_id": id} )
+    Frame_rewards(one)
+
+def Frame_rewards(one):
+    """Calculate total rewards for specific game Id.
+
+    :param id: A stock representation from Mongo
+    :rtype: A dictionary with reward data
+    """
 
     # Init dictionary of data
     game_info = {}
@@ -23,8 +31,8 @@ def Frame_rewards(id):
     opponent_frames = one['p2']['frame']
 
     # Add meta data
-    game_info['date'] = one['date']
-    game_info['matchup'] = one['p1']['character'] + " vs " + one['p2']['character']
+    # game_info['date'] = one['date']
+    # game_info['matchup'] = one['p1']['character'] + " vs " + one['p2']['character']
 
     # Add total of Offensive Rewards
     game_info['offensive_reward'] = reward_attack( player_frames, opponent_frames  )
@@ -98,9 +106,9 @@ def reward_attack(this_player, opponent):
             # Damaged by opponent
             if this_player[i]['percent'] > 0:
                 if this_player[i]['crouching']:
-                reward -= this_player[i]['percent'] / 2
+                    reward -= this_player[i]['percent'] / 2
                 else:
-                reward -= this_player[i]['percent']
+                    reward -= this_player[i]['percent']
                 
     return reward
 
@@ -108,7 +116,7 @@ def reward_defense(this_player, opponent):
     """ Count rewards for defense """
     reward = 0                              # Init return value
     dist = 0                                # Init distance
-    for i in range( 0, len(this_player) ):
+    for i in range( 0, len(this_player) - 1 ):
         # Current distance between players
         dist = sqrt(this_player[i]['distance_vector'][0] ** 2 + this_player[i]['distance_vector'][1] ** 2)
         # Next didtance
@@ -193,7 +201,7 @@ def reward_combos(this_player, opponent):
             current = {
                 'percent': 0,
                 'hits': 0,
-                'ends_offstage': False
+                'ends_offstage': False,
                 'kills': False
             }
 

@@ -144,22 +144,9 @@ while step.gamestate.menu_state == melee.enums.Menu.IN_GAME:
             }
         }
     step = env.step(player)
-    # if step.opponent.dead_fall:
-    #     print ("Deadfall!!!!")
-    # if step.opponent.falling:
-    #     print ("Falling!!!!")
-    # if step.opponent.falling_aerial:
-    #     print ("falling aerial!!!!!")
-    # if step.opponent.shield_stun:
-    #     print("shield stun!!!")
-    # if step.opponent.shield_reflect:
-    #     print("shield reflect!!!")
-    # if step.opponent.shield:
-    #     print("shield!!!")
-    if step.opponent.self_kill or step.ai.self_kill:
-        print('Self kill!!! Bitches!!!')
-    # print ("Vector:", step.opponent.x - step.ai.x, step.opponent.y - step.ai.y)
-    # print ("Distance:", sqrt((step.opponent.x - step.ai.x) ** 2 + (step.opponent.y - step.ai.y) ** 2))
+    if step.opponent.attack_state == melee.enums.AttackState.ATTACKING:
+        print (step.opponent.attack_state)
+
 winner = plays[-1]['flip']
 for p in plays:
     if not p['flip']:
@@ -167,7 +154,7 @@ for p in plays:
     else:
         p['winner'] = not winner
 print('Saving...')
-# [print ('Saved:', collection.insert_one(p).inserted_id) for p in plays]
+[print ('Saved:', collection.insert_one(p).inserted_id) for p in plays]
 # mongo_id = collection.insert_one(game)
 # collection.update_one({'_id': mongo_id.inserted_id}, {"$set": {
 #     'p2.frame': p2_frame
