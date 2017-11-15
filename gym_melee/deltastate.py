@@ -18,10 +18,12 @@ def separate_projectiles(gamestate, op_name, ai_name):
 class DeltaState(object):
     """Defines the change in player and opponent state between frames."""
     def __init__(self, gamestate, framedata):
+        p1 = gamestate.player[gamestate.opponent_port].character
+        p2 = gamestate.player[gamestate.ai_port].character
         self.prev_opponent_state = gamestate.opponent_state
         self.prev_ai_state = gamestate.ai_state
-        self.opponent = PlayerDelta(self.prev_opponent_state, gamestate.opponent_state)
-        self.ai = PlayerDelta(self.prev_ai_state, gamestate.ai_state)
+        self.opponent = PlayerDelta(self.prev_opponent_state, gamestate.opponent_state, framedata, p1)
+        self.ai = PlayerDelta(self.prev_ai_state, gamestate.ai_state, framedata, p2)
         self.op_name = str(gamestate.player[gamestate.opponent_port].character)[10:]
         self.ai_name = str(gamestate.player[gamestate.ai_port].character)[10:]
         self.opponent.projectiles, self.ai.projectiles = \
@@ -32,24 +34,23 @@ class DeltaState(object):
         self.framedata = framedata
 
     def step(self):
-        self.opponent = PlayerDelta(self.prev_opponent_state, self.gamestate.opponent_state)
-        self.ai = PlayerDelta(self.prev_ai_state, self.gamestate.ai_state)
+        p1 = self.gamestate.player[self.gamestate.opponent_port].character
+        p2 = self.gamestate.player[self.gamestate.ai_port].character
+        self.opponent = PlayerDelta(self.prev_opponent_state, self.gamestate.opponent_state, self.framedata, p1)
+        self.ai = PlayerDelta(self.prev_ai_state, self.gamestate.ai_state, self.framedata, p2)
         self.opponent.hit = self.ai.hitted
         self.ai.hit = self.opponent.hitted
         self.opponent.opponent_percent = self.ai.percent
         self.ai.opponent_percent = self.opponent.percent
         self.prev_opponent_state = copy(self.gamestate.opponent_state)
         self.prev_ai_state = copy(self.gamestate.ai_state)
-        self.op_name = str(self.gamestate.player[self.gamestate.opponent_port].character)[10:]
-        self.ai_name = str(self.gamestate.player[self.gamestate.ai_port].character)[10:]
+        self.op_name = str(p1)[10:]
+        self.ai_name = str(p2)[10:]
         self.opponent.projectiles, self.ai.projectiles = \
                 separate_projectiles(self.gamestate, self.op_name, self.ai_name)
 
-        self.opponent.attack_state = self.framedata.attackstate_simple(self.gamestate.player[self.gamestate.opponent_port])
-        self.ai.attack_state = self.framedata.attackstate_simple(self.gamestate.player[self.gamestate.ai_port])
-
         self.opponent.vector = [self.opponent.x - self.ai.x, self.opponent.y - self.ai.y]
-        self.opponent.vector = [self.ai.x - self.opponent.x, self.ai.y - self.opponent.y]
+        self.ai.vector = [self.ai.x - self.opponent.x, self.ai.y - self.opponent.y]
 
     def todict(self):
         return {
@@ -59,7 +60,7 @@ class DeltaState(object):
 
 class PlayerDelta(object):
     """Defines the change in relevant (for the ai) states of a player."""
-    def __init__(self, prev_state, new_state):
+    def __init__(self, prev_state, new_state, framedata, character):
         self.facing = new_state.facing
         self.invulnerable = new_state.invulnerable
         self.invulnerability_left = new_state.invulnerability_left
@@ -95,6 +96,9 @@ class PlayerDelta(object):
         self.crouch_end = (act == Action.CROUCH_END)
         self.landing = (act == Action.LANDING)
 
+        self.is_attacking = framedata.isattack(character, act)
+        self.is_b = framedata.isbmove(character, act)
+
         self.landing_special = (act == Action.LANDING_SPECIAL)
         self.NEUTRAL_ATTACK = (act == Action.NEUTRAL_ATTACK_1) or \
                 (act == Action.NEUTRAL_ATTACK_2) or \
@@ -105,9 +109,9 @@ class PlayerDelta(object):
         # self.LOOPING_ATTACK_END = (act == Action.LOOPING_ATTACK_END)
 
         self.DASH_ATTACK = (act == Action.DASH_ATTACK)
-        self.ftilt = (act == Action.FTILT_HIGH or act == Action.FTILT_HIGH_MID or \
-                        act == Action.FTILT_MID or act == Action.FTILT_LOW_MID or \
-                        act == Action.FTILT_LOW)
+        self.ftilt = act in (Action.FTILT_HIGH, Action.FTILT_HIGH_MID,
+                        Action.FTILT_MID, Action.FTILT_LOW_MID,
+                        Action.FTILT_LOW)
 
         # self.FTILT_HIGH_MID = (act == Action.FTILT_HIGH_MID)
         # self.FTILT_MID = (act == Action.FTILT_MID)
@@ -138,7 +142,7 @@ class PlayerDelta(object):
         self.UAIR = (act == Action.UAIR) or (act == Action.UAIR_LANDING)
         self.DAIR = (act == Action.DAIR) or (act == Action.DAIR_LANDING)
 
-        self.shield = (act == Action.SHIELD_START or act == Action.SHIELD)
+        self.shield = framedata.isshield(act)
         self.shield_stun = (act == Action.SHIELD_STUN)
         self.ground_getup = (act == Action.GROUND_GETUP)
         self.ground_roll_forward_up = (act == Action.GROUND_ROLL_FORWARD_UP)
@@ -160,22 +164,6 @@ class PlayerDelta(object):
         self.edge_catching = (act == Action.EDGE_CATCHING)
         self.off_stage = new_state.off_stage
         self.iasa = new_state.iasa
-        # self.hitbox_1_size = new_state.hitbox_1_size
-        # self.hitbox_2_size = new_state.hitbox_2_size
-        # self.hitbox_3_size = new_state.hitbox_3_size
-        # self.hitbox_4_size = new_state.hitbox_4_size
-        # self.hitbox_1_status = new_state.hitbox_1_status
-        # self.hitbox_2_status = new_state.hitbox_2_status
-        # self.hitbox_3_status = new_state.hitbox_3_status
-        # self.hitbox_4_status = new_state.hitbox_4_status
-        # self.hitbox_1_x = new_state.hitbox_1_x
-        # self.hitbox_1_y = new_state.hitbox_1_y
-        # self.hitbox_2_x = new_state.hitbox_2_x
-        # self.hitbox_2_y = new_state.hitbox_2_y
-        # self.hitbox_3_x = new_state.hitbox_3_x
-        # self.hitbox_3_y = new_state.hitbox_3_y
-        # self.hitbox_4_x = new_state.hitbox_4_x
-        # self.hitbox_4_y = new_state.hitbox_4_y
         self.self_kill = self.stock == -1 and not self.dead
         self.vector = [0, 0]
         self.projectiles = []
@@ -215,7 +203,7 @@ class PlayerDelta(object):
             # "UPTILT": self.UPTILT,
             # "DOWNTILT": self.DOWNTILT,
             "fsmash": self.fsmash,
-            "attack_state": self.attack_state,
+            "is_attacking": self.is_attacking,
             # "FSMASH_MID_HIGH": self.FSMASH_MID_HIGH,
             # "FSMASH_MID": self.FSMASH_MID,
             # "FSMASH_MID_LOW": self.FSMASH_MID_LOW,
@@ -271,6 +259,7 @@ class PlayerDelta(object):
             "up_b": self.up_b,
             "down_b": self.down_b,
             "neutral_b": self.neutral_b,
+            "is_b": self.is_b,
             # "moonwalkwarning": self.moonwalkwarning,
             # "hitbox_1_size": self.hitbox_1_size,
             # "hitbox_2_size": self.hitbox_2_size,

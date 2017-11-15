@@ -144,8 +144,9 @@ while step.gamestate.menu_state == melee.enums.Menu.IN_GAME:
             }
         }
     step = env.step(player)
-    if step.opponent.attack_state == melee.enums.AttackState.ATTACKING:
-        print (step.opponent.attack_state)
+    if step.opponent.is_attacking:
+        print ("Attacking")
+    print (step.opponent.hitlag_left, step.opponent.hitstun_left)
 
 winner = plays[-1]['flip']
 for p in plays:
