@@ -97,7 +97,7 @@ def reward_attack(this_player, opponent):
                 if opponent[i]['percent'] > 0 and this_player[i]['percent'] > 0:
                     reward += (this_player[i]['percent'] - opponent[i]['percent'])
             # Below defenseless opponent
-            if (not this_player[i]["hitstun_left"] or not this_player[i]["hitlag_left"]) \
+            if (this_player[i]["hitstun_left"] == 0 and this_player[i]["hitlag_left"] == 0) \
                 and this_player[i]["distance_vector"][1] > 0:
                 if opponent[i]['falling_aerial']:
                     reward += 2
@@ -183,7 +183,7 @@ def reward_defense(this_player, opponent):
             if this_player[i]['tumbling']:
                 reward -= 1
             # Defenseless above opponent
-            if (not opponent[i]["hitstun_left"] or not opponent[i]["hitlag_left"]) \
+            if (opponent[i]["hitstun_left"] == 0 and opponent[i]["hitlag_left"] == 0) \
                 and opponent[i]["distance_vector"][1] > 0:
                 if this_player[i]['falling_aerial']:
                     reward -= 2
@@ -195,8 +195,6 @@ def reward_defense(this_player, opponent):
 def reward_combos(this_player, opponent):
     """ Count rewards for combos """
     # TODO Checar si hitstun comienza con hit o depues de hitlag
-    # TODO Threshold para non-true combos
-    # TODO get reward
     combos = []
     current = None
     for i in range(len(this_player)):
@@ -211,7 +209,7 @@ def reward_combos(this_player, opponent):
         pf = this_player[i]
         of = opponent[i]
 
-        if of['percent'] > 0:
+        if of['percent'] > 0 and of['hitlag_left'] > 0:
             current['percent'] += of['percent']
             current['hits'] += 1
 
@@ -223,7 +221,15 @@ def reward_combos(this_player, opponent):
             if current['hits'] > 1:
                 combos.append(current)
             current = None
-    pass
+    reward = 0
+    for curr in combos:
+        reward += curr['percent']
+        if curr['ends_offstage']:
+            reward += 3
+        reward += curr['hits']
+        if curr['kills']:
+            reward += 10
+    return reward
 
 def check_deads(frames):
     """ Check whether if was suicide or killed by opponent """
@@ -241,7 +247,7 @@ def Spam_detection(this_player):
     outlier = moves_ave + (std_dev * n)
     # Filter moves
     for mv, fr in moves_used.items():
-        if fr > outlier:
+        if fr >= outlier:
             spammed_moves.append( mv )
 
     return spammed_moves
