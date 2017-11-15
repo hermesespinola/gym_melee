@@ -83,7 +83,7 @@ def reward_attack(this_player, opponent):
             if ( this_player[i]['grab'] or this_player[i]['grab_running'] ) and not opponent[i + 1]['grabbed']:
                 reward -= 1
             # Damage p2 with grab
-            if this_player[i]['grab_pummel']:
+            if this_player[i]['grap_pummel']:
                 reward += 1
             # Attack
             if this_player[i]['is_attacking']:     
@@ -112,7 +112,7 @@ def reward_attack(this_player, opponent):
                     reward -= this_player[i]['percent'] / 2
                 else:
                     reward -= this_player[i]['percent']
-                
+        i += 1
     return reward
 
 def reward_defense(this_player, opponent):
@@ -189,7 +189,7 @@ def reward_defense(this_player, opponent):
                     reward -= 2
                 elif this_player[i]['dead_fall']:
                     reward -= 4
-
+        i += 1
     return reward
 
 def reward_combos(this_player, opponent):
