@@ -1,3 +1,4 @@
+import statistics
 from pymongo import MongoClient
 from math import sqrt
 
@@ -40,13 +41,17 @@ def Frame_rewards(one):
     # Add total of Defense Rewards
     game_info['defensive_reward'] = reward_defense( player_frames, opponent_frames  )
 
+    # Add spammed moves
+    game_info['spammed_actions'] = Spam_detection( player_frames )
+
     return game_info
 
 def reward_attack(this_player, opponent):
     """Count offense reward."""
     dist = 0                                    # Init distance
     reward = 0                                  # Init return value
-    for i in range( 0, len(this_player) ):
+    i = 0                                       # Init counter
+    while i < len(this_player):
         """ Iterate over each frame data """
         # Current distance between players
         dist = sqrt(this_player[i]["distance_vector"][0] ** 2 + this_player[i]["distance_vector"][1] ** 2)
@@ -77,11 +82,9 @@ def reward_attack(this_player, opponent):
             # Grab failed
             if ( this_player[i]['grab'] or this_player[i]['grab_running'] ) and not opponent[i + 1]['grabbed']:
                 reward -= 1
-            """ Add GRAB_PUMMEL to DB
             # Damage p2 with grab
             if this_player[i]['grab_pummel']:
                 reward += 1
-            """
             # Attack
             if this_player[i]['is_attacking']:     
                 # Success                               
@@ -116,7 +119,8 @@ def reward_defense(this_player, opponent):
     """ Count rewards for defense """
     reward = 0                              # Init return value
     dist = 0                                # Init distance
-    for i in range( 0, len(this_player) - 1 ):
+    i = 0                                   # Init counter
+    while i < len(this_player) - 1:
         # Current distance between players
         dist = sqrt(this_player[i]['distance_vector'][0] ** 2 + this_player[i]['distance_vector'][1] ** 2)
         # Next didtance
@@ -190,7 +194,6 @@ def reward_defense(this_player, opponent):
 
 def reward_combos(this_player, opponent):
     """ Count rewards for combos """
-    #hit stun
     # TODO Checar si hitstun comienza con hit o depues de hitlag
     # TODO Threshold para non-true combos
     # TODO get reward
@@ -222,36 +225,111 @@ def reward_combos(this_player, opponent):
             current = None
     pass
 
-#shieldstunstuck
-
 def check_deads(frames):
     """ Check whether if was suicide or killed by opponent """
     pass
 
+def Spam_detection(this_player):
+    """Detect spammed moves."""
+    spammed_moves = []                              # Init return value
+    n = 2                                           # Outlier distance
+    moves_used = moves_counter( this_player )       # Get dict of used moves
+    freq = list( moves_used.values() )              # Transform to freq list
+    moves_ave = statistics.mean( freq )             # Get average of used moves
+    std_dev = statistics.stdev( freq )              # Get standard deviation
+    # Define outlier
+    outlier = moves_ave + (std_dev * n)
+    # Filter moves
+    for mv, fr in moves_used.items():
+        if fr > outlier:
+            spammed_moves.append( mv )
 
+    return spammed_moves
 
+def moves_counter(this_player):
+    """Auxiliary method to count used moves for Spam_detection."""
+    moves_counter = {}                          # Init dict of used moves
+    i = 0                                       # Init counter
+    # Iterate over frames
+    while i < len(this_player):
+        if this_player[i]['fsmash']:
+            moves_counter['fsmash'] += 1
+            while this_player[i]['fsmash'] and i < len(this_player):
+                i += 1
+            continue
+        if this_player[i]['DASH_ATTACK']:
+            moves_counter['DASH_ATTACK'] += 1
+            while this_player[i]['DASH_ATTACK'] and i < len(this_player):
+                i += 1
+            continue
+        if this_player[i]['ftilt']:
+            moves_counter['ftilt'] += 1
+            while this_player[i]['ftilt'] and i < len(this_player):
+                i += 1
+            continue
+        if this_player[i]['NEUTRAL_ATTACK']:
+            moves_counter['NEUTRAL_ATTACK'] += 1
+            while this_player[i]['NEUTRAL_ATTACK'] and i < len(this_player):
+                i += 1
+            continue
+        if this_player[i]['upsmash']:
+            moves_counter['upsmash'] += 1
+            while this_player[i]['upsmash'] and i < len(this_player):
+                i += 1
+            continue
+        if this_player[i]['downsmash']:
+            moves_counter['downsmash'] += 1
+            while this_player[i]['downsmash'] and i < len(this_player):
+                i += 1
+            continue
+        if this_player[i]['NAIR']:
+            moves_counter['NAIR'] += 1
+            while this_player[i]['NAIR'] and i < len(this_player):
+                i += 1
+            continue
+        if this_player[i]['FAIR']:
+            moves_counter['FAIR'] += 1
+            while this_player[i]['FAIR'] and i < len(this_player):
+                i += 1
+            continue
+        if this_player[i]['BAIR']:
+            moves_counter['BAIR'] += 1
+            while this_player[i]['BAIR'] and i < len(this_player):
+                i += 1
+            continue
+        if this_player[i]['UAIR']:
+            moves_counter['UAIR'] += 1
+            while this_player[i]['UAIR'] and i < len(this_player):
+                i += 1
+            continue
+        if this_player[i]['DAIR']:
+            moves_counter['DAIR'] += 1
+            while this_player[i]['DAIR'] and i < len(this_player):
+                i += 1
+            continue
+        if this_player[i]['grab']:
+            moves_counter['grab'] += 1
+            while this_player[i]['grab'] and i < len(this_player):
+                i += 1
+            continue
+        if this_player[i]['up_b']:
+            moves_counter['up_b'] += 1
+            while this_player[i]['up_b'] and i < len(this_player):
+                i += 1
+            continue
+        if this_player[i]['down_b']:
+            moves_counter['down_b'] += 1
+            while this_player[i]['down_b'] and i < len(this_player):
+                i += 1
+            continue
+        if this_player[i]['neutral_b']:
+            moves_counter['neutral_b'] += 1
+            while this_player[i]['neutral_b'] and i < len(this_player):
+                i += 1
+            continue
 
-
-"""Used For testing: can be deleted any time
-# Connect to mongoDB.
-client = MongoClient('mongodb://hermes:hermes@info.gda.itesm.mx:27017/melee')
-db = client['melee']
-collection = db['games']
-
-# Get only one 'game'.
-one = collection.find()[6]
-
-# Print meta data
-print(one['date'])
-print(one['p1']['character'] + " vs " + one['p2']['character'])
-
-#print("Offensive frames")
-#reward_attack(one['p1']['frame'], one['p2']['frame'])
-
-print("Defensive frames")
-reward_defense(one['p1']['frame'], one['p2']['frame'])
-
-"""
+        i += 1
+    return moves_counter
 
 # Atributos neutrales
 """
@@ -289,4 +367,13 @@ tumbling
 tech_miss
 grabbed
 grab_break
+
+
+just in case
+
+def std_gaussian_function(x, ave, dev):
+
+    denom = Decimal( dev * (2 * math.pi) ** 0.5 )
+    num = Decimal( math.exp( -(float(x) - float(ave)) ** 2 / (2 * dev ** 2) ) )
+    return Decimal( num / denom )
 """
