@@ -279,5 +279,6 @@ class PlayerDelta(object):
             # "hitbox_4_y": self.hitbox_4_y,
             # "projectiles": self.projectiles
             "edge_catching": self.edge_catching,
+	    "grab_running": self.grab_running,
             "distance_vector": self.vector
         }
