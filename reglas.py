@@ -202,7 +202,7 @@ def reward_defense(this_player, opponent):
                     reward -= 4
         i += 1
     dmg_percent = this_player[len(this_player) - 2]['total_percent'] - 100
-    print(dmg_percent + 100)
+    # print(dmg_percent + 100)
     survivability = dmg_percent * (len(this_player) / 60 ** 2)
     reward += survivability
     return reward
