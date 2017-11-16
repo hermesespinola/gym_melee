@@ -60,6 +60,13 @@ def reward_attack(this_player, opponent):
         # Current distance between players
         dist = sqrt(this_player[i]["distance_vector"][0] ** 2 + this_player[i]["distance_vector"][1] ** 2)
 
+        # Make opponent to lose a stock
+        if opponent['stock'] <= -1:
+            op_dmg = opponent['total_percent']
+            if opponent['total_percent'] <= 0:
+                op_dmg = 1
+            reward += (1000 / op_dmg)
+
         # Charging smash
         if this_player[i]['charging_smash']:
             while this_player[i]['charging_smash'] and i < len(this_player):
