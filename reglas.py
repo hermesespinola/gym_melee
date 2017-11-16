@@ -76,13 +76,13 @@ def reward_attack(this_player, opponent):
                 break
             # Smash did damage
             elif opponent[i]['percent'] > 0:
-                reward += 10
+                reward += (opponent[i]['percent'] * 1.5)
             # Smash hit shield
             elif opponent[i]['shield_stun'] > 0:
                 reward += 1
             # Smash missed or useless
             else:
-                reward -= 5
+                reward -= 2
         else:
             # Grab succeed
             if ( this_player[i]['grab'] or this_player[i]['grab_running'] ) and opponent[i + 1]['grabbed']:
