@@ -61,9 +61,9 @@ def reward_attack(this_player, opponent):
         dist = sqrt(this_player[i]["distance_vector"][0] ** 2 + this_player[i]["distance_vector"][1] ** 2)
 
         # Make opponent to lose a stock
-        if opponent['stock'] <= -1:
-            op_dmg = opponent['total_percent']
-            if opponent['total_percent'] <= 0:
+        if opponent[i]['stock'] <= -1:
+            op_dmg = opponent[i]['total_percent']
+            if opponent[i]['total_percent'] <= 0:
                 op_dmg = 1
             reward += (1000 / op_dmg)
 
