@@ -132,14 +132,14 @@ def reward_defense(this_player, opponent):
 
         # Spotdodging
         if this_player[i]['spotdodge']:
-            while this_player[i]['spotdodge'] and i < len(this_player):
+            while i < len(this_player) and this_player[i]['spotdodge']:
                 # Succesfull spotdodge
                 if opponent[i]['is_attacking'] and dist <= 20:
                     reward += 3
                 # Useless spotdodge
                 if dist > 20:
                     reward -= 1
-                i += i
+                i += 1
             # Frame ended
             if i < len(this_player):
                 break
@@ -148,7 +148,7 @@ def reward_defense(this_player, opponent):
                 reward -= 3
         # Ground rolling
         elif this_player[i]['ground_roll_forward_up'] or this_player[i]['ground_roll_backward_up']:
-            while this_player[i]['ground_roll_forward_up'] or this_player[i]['ground_roll_backward_up'] and i < len(this_player):
+            while i < len(this_player) and (this_player[i]['ground_roll_forward_up'] or this_player[i]['ground_roll_backward_up']):
                 i += 1
             # Frame ended
             if i < len(this_player):
@@ -158,7 +158,7 @@ def reward_defense(this_player, opponent):
                 reward -= 3
         # Rolling
         elif this_player[i]['roll_forward'] or this_player[i]['roll_backward']:
-            while this_player[i]['roll_forward'] or this_player[i]['roll_backward'] and i < len(this_player):
+            while i < len(this_player) and (this_player[i]['roll_forward'] or this_player[i]['roll_backward']):
                 # Good roll
                 if dist <= 20 and opponent[i]['is_attacking']:
                     if dist_next > dist and (this_player[i]['roll_forward'] or this_player[i]['roll_backward']):
@@ -258,7 +258,23 @@ def Spam_detection(this_player):
 
 def moves_counter(this_player):
     """Auxiliary method to count used moves for Spam_detection."""
-    moves_counter = {}                          # Init dict of used moves
+    moves_counter = {
+        'fsmash': 0,
+        'DASH_ATTACK': 0,
+        'ftilt': 0,
+        'NEUTRAL_ATTACK': 0,
+        'upsmash': 0,
+        'downsmash': 0,
+        'NAIR': 0,
+        'FAIR': 0,
+        'BAIR': 0,
+        'UAIR': 0,
+        'DAIR': 0,
+        'grab': 0,
+        'up_b': 0,
+        'down_b': 0,
+        'neutral_b': 0,
+    }                          # Init dict of used moves
     i = 0                                       # Init counter
     # Iterate over frames
     while i < len(this_player):

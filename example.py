@@ -60,8 +60,8 @@ client = MongoClient('mongodb://hermes:hermes@info.gda.itesm.mx:27017/melee')
 db = client['melee']
 collection = db['games']
 
-# env.start('/run/media/andres/TI10701100B/Things/ROMs & ISOs/Super Smash Bros. Melee (v1.02).iso')
-env.start('Super Smash Bros. Melee (v1.02).iso')
+env.start('/run/media/andres/TI10701100B/Things/ROMs & ISOs/Super Smash Bros. Melee (v1.02).iso')
+# env.start('Super Smash Bros. Melee (v1.02).iso')
 
 from datetime import datetime
 
@@ -144,9 +144,9 @@ while step.gamestate.menu_state == melee.enums.Menu.IN_GAME:
             }
         }
     step = env.step(player)
-    if step.opponent.is_attacking:
-        print ("Attacking")
-    print (step.opponent.hitlag_left, step.opponent.hitstun_left)
+    # if step.opponent.is_attacking:
+        # print ("Attacking")
+    # print (step.opponent.hitlag_left, step.opponent.hitstun_left)
 
 winner = plays[-1]['flip']
 for p in plays:

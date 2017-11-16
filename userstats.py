@@ -25,6 +25,8 @@ def userstat(name):
     dest = db['users']
     stocks = collection.find({'name': name})
     n = stocks.count()
+    if(n == 1):
+        return
     stats = []
     for s in stocks:
         s['stats'] = check(s)
@@ -69,4 +71,5 @@ def userstat(name):
 
     dest.replace_one({'name': name}, fullstats, True)
 
-userstat('Gerardo')
+userstat('Zegerd')
+userstat('Barro')
