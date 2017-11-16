@@ -2,29 +2,33 @@
 from pymongo import MongoClient
 from datetime import datetime
 from reglas import Frame_rewards
+from sys import argv
 
 def check(one):
     return Frame_rewards(one)
-    # return {'total': 200, 'offensive': 300, 'defensive': -100}
 
 def outs(avg, stddev, k, games):
-    stds = 3
+    stds = 2
     low = []
     high = []
     for g in games:
         if g['stats'][k] > avg + stds * stddev:
+            print('High:', g['stats'][k])
             high.append(g['_id'])
         elif g['stats'][k] < avg - stds * stddev:
+            print('Low:', g['stats'][k])
             low.append(g['_id'])
     return {'high': high, 'low': low}
 
 def userstat(name):
+    print('Calculating for', name)
     client = MongoClient('mongodb://hermes:hermes@info.gda.itesm.mx:27017/melee')
     db = client['melee']
     collection = db['games']
     dest = db['users']
-    stocks = collection.find({'name': name})
-    n = stocks.count()
+    stocks = list(collection.find({'name': name}))
+    # n = stocks.count()
+    n = len(stocks)
     if(n == 1):
         return
     stats = []
@@ -34,6 +38,7 @@ def userstat(name):
             'stats': s['stats']
         }}, upsert=True)
         stats.append(s['stats'])
+    # stocks.rewind()
     avg = {}
     stddev = {}
     outliers = {}
@@ -55,7 +60,9 @@ def userstat(name):
         stddev[k] = (stddev[k] / (n - 1)) ** (1/2)
 
     for k in avg.keys():
+        print(k, '-> Average:', avg[k], 'Standard Deviation:', stddev[k])
         outliers[k] = outs(avg[k], stddev[k], k, stocks)
+        # stocks.rewind()
 
     fullstats = {
         'name': name,
@@ -71,5 +78,5 @@ def userstat(name):
 
     dest.replace_one({'name': name}, fullstats, True)
 
-userstat('Zegerd')
-userstat('Barro')
+for name in argv[1:]:
+    userstat(name)
