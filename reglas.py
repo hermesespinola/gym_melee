@@ -42,7 +42,8 @@ def Frame_rewards(one):
     game_info['defensive_reward'] = reward_defense( player_frames, opponent_frames  )
 
     # Add spammed moves
-    game_info['spammed_actions'] = Spam_detection( player_frames )
+    list_of_spam_actions = Spam_detection( player_frames )
+    game_info['spammed_actions'] = len( list_of_spam_actions )
 
     # Add Combo rewards
     game_info['combo_reward'] = reward_combos( player_frames, opponent_frames  )
