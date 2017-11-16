@@ -255,7 +255,7 @@ class PlayerDelta(object):
             # "stock": self.stock,
             "iasa": self.iasa,
             "hitlag_left": self.hitlag_left,
-            "grap_pummel": self.grab_pummel,
+            "grab_pummel": self.grab_pummel,
             "up_b": self.up_b,
             "down_b": self.down_b,
             "neutral_b": self.neutral_b,
