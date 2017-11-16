@@ -60,6 +60,13 @@ def reward_attack(this_player, opponent):
         # Current distance between players
         dist = sqrt(this_player[i]["distance_vector"][0] ** 2 + this_player[i]["distance_vector"][1] ** 2)
 
+        # Make opponent to lose a stock
+        if opponent[i]['stock'] <= -1:
+            op_dmg = opponent[i]['total_percent']
+            if opponent[i]['total_percent'] <= 0:
+                op_dmg = 1
+            reward += (1000 / op_dmg)
+
         # Charging smash
         if this_player[i]['charging_smash']:
             while this_player[i]['charging_smash'] and i < len(this_player):
@@ -69,13 +76,13 @@ def reward_attack(this_player, opponent):
                 break
             # Smash did damage
             elif opponent[i]['percent'] > 0:
-                reward += 10
+                reward += (opponent[i]['percent'] * 1.5)
             # Smash hit shield
             elif opponent[i]['shield_stun'] > 0:
                 reward += 1
             # Smash missed or useless
             else:
-                reward -= 5
+                reward -= 2
         else:
             # Grab succeed
             if ( this_player[i]['grab'] or this_player[i]['grab_running'] ) and opponent[i + 1]['grabbed']:
@@ -132,14 +139,14 @@ def reward_defense(this_player, opponent):
 
         # Spotdodging
         if this_player[i]['spotdodge']:
-            while this_player[i]['spotdodge'] and i < len(this_player):
+            while i < len(this_player) and this_player[i]['spotdodge']:
                 # Succesfull spotdodge
                 if opponent[i]['is_attacking'] and dist <= 20:
                     reward += 3
                 # Useless spotdodge
                 if dist > 20:
                     reward -= 1
-                i += i
+                i += 1
             # Frame ended
             if i < len(this_player):
                 break
@@ -148,7 +155,7 @@ def reward_defense(this_player, opponent):
                 reward -= 3
         # Ground rolling
         elif this_player[i]['ground_roll_forward_up'] or this_player[i]['ground_roll_backward_up']:
-            while this_player[i]['ground_roll_forward_up'] or this_player[i]['ground_roll_backward_up'] and i < len(this_player):
+            while i < len(this_player) and (this_player[i]['ground_roll_forward_up'] or this_player[i]['ground_roll_backward_up']):
                 i += 1
             # Frame ended
             if i < len(this_player):
@@ -158,7 +165,7 @@ def reward_defense(this_player, opponent):
                 reward -= 3
         # Rolling
         elif this_player[i]['roll_forward'] or this_player[i]['roll_backward']:
-            while this_player[i]['roll_forward'] or this_player[i]['roll_backward'] and i < len(this_player):
+            while i < len(this_player) and (this_player[i]['roll_forward'] or this_player[i]['roll_backward']):
                 # Good roll
                 if dist <= 20 and opponent[i]['is_attacking']:
                     if dist_next > dist and (this_player[i]['roll_forward'] or this_player[i]['roll_backward']):
@@ -194,6 +201,9 @@ def reward_defense(this_player, opponent):
                 elif this_player[i]['dead_fall']:
                     reward -= 4
         i += 1
+    dmg_percent = this_player[len(this_player) - 1]['total_percent'] / 100
+    survivability = dmg_percent * (len(this_player) / 60 ** 2)
+    reward += survivability
     return reward
 
 def reward_combos(this_player, opponent):
@@ -258,7 +268,23 @@ def Spam_detection(this_player):
 
 def moves_counter(this_player):
     """Auxiliary method to count used moves for Spam_detection."""
-    moves_counter = {}                          # Init dict of used moves
+    moves_counter = {
+        'fsmash': 0,
+        'DASH_ATTACK': 0,
+        'ftilt': 0,
+        'NEUTRAL_ATTACK': 0,
+        'upsmash': 0,
+        'downsmash': 0,
+        'NAIR': 0,
+        'FAIR': 0,
+        'BAIR': 0,
+        'UAIR': 0,
+        'DAIR': 0,
+        'grab': 0,
+        'up_b': 0,
+        'down_b': 0,
+        'neutral_b': 0,
+    }                          # Init dict of used moves
     i = 0                                       # Init counter
     # Iterate over frames
     while i < len(this_player):

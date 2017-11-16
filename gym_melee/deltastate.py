@@ -252,7 +252,7 @@ class PlayerDelta(object):
             "sliding_off_edge": self.sliding_off_edge,
             "edge_hanging": self.edge_hanging,
             "off_stage": self.off_stage,
-            # "stock": self.stock,
+            "stock": self.stock,
             "iasa": self.iasa,
             "hitlag_left": self.hitlag_left,
             "grab_pummel": self.grab_pummel,
@@ -279,6 +279,6 @@ class PlayerDelta(object):
             # "hitbox_4_y": self.hitbox_4_y,
             # "projectiles": self.projectiles
             "edge_catching": self.edge_catching,
-	    "grab_running": self.grab_running,
+	        "grab_running": self.grab_running,
             "distance_vector": self.vector
         }
