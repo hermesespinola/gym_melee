@@ -9,23 +9,23 @@ from copy import deepcopy as copy
 
 parser = argparse.ArgumentParser(description='Example gym_melee')
 parser.add_argument('--port', '-p',
-                    help='The controller port your AI will play on',
+                    help='The controller port the second player will play on',
                     default=2)
 parser.add_argument('--opponent', '-o',
-                    help='The controller port the opponent will play on',
+                    help='The controller port the first player will play on',
                     default=1)
 parser.add_argument('--controller', '-i',
-                    help='The controller type, options are gcna, ps4, xbox, bot and unplugged',
+                    help='The controller type of the first player, options are gcna, ps4, xbox and unplugged',
                     default='gcna')
 parser.add_argument('--aicontroller', '-a',
-                    help='Should the ai port play as a bot or read from a controller same options as in --controller',
+                    help='The controller type of the second player. options are gcna, ps4, xbox, bot and unplugged',
                     default='bot')
 parser.add_argument('--debug', '-d', action='store_true',
                     help='Debug mode.')
 parser.add_argument('--character', '-c', default='fox',
-                    help='The ai selected character')
+                    help='The bot selected character')
 parser.add_argument('--stage', '-s', default='battlefield',
-                    help='The selected stage')
+                    help='The bot selected stage')
 parser.add_argument('--p1name', '-q',
                     help='Name for p1',
                     default='Jorge')
@@ -38,12 +38,6 @@ character = args.character
 stage = args.stage
 debug = args.debug
 
-# tells controller type (standard, gc, etc.)
-# STANDARD = "6"
-# GCN_ADAPTER = "12"
-# UNPLUGGED = "0"
-# XBOX = "2"
-# PS4 = "4"
 controller_type = args.controller
 ai_controller_type = args.aicontroller
 
