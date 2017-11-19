@@ -12,7 +12,7 @@ The program only works inside Tec de Monterrey Campus Guadalajara (plss don't me
 
 ## Asumptions
 - No items.
-- A stock should not last more than _ minutes.
+- A stock should not last more than 4 minutes.
 - No pauses if possible.
 - Only 1V1.
 - The first player must be a real player.
