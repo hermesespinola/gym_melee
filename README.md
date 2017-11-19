@@ -7,7 +7,7 @@ Gym melee is a tool that helps melee players improve their playing based upon th
 - Compile and install, following the instructions in the emulator's repository.
 - Create a soft link of the dolphin/installation/path/Build/Binaries directory to *$HOME/.local/share/dolphin-emu* since the *libmeele* library expects the binaries to be there.
 - Make sure the command dolphin-emu is available and if not link the dolphin executable to /usr/local/bin/dolphin-emu.
-- Place a copy of a Super Smash Bros. Melee v1.02 NTSC iso in the *gym_melee* directory and name it 'Super Smash Bros. Melee (v1.02).iso'.
+- Place a copy of a Super Smash Bros. Melee v1.02 NTSC iso in the root directory of the project and name it 'Super Smash Bros. Melee (v1.02).iso'.
 The program only works inside Tec de Monterrey Campus Guadalajara (plss don't mess with the db thnxs), or you can replace all MongoClient references in the code (in main.py, usersgraph.py and userstats.py) to your own running mongodb instance.
 
 ## Asumptions
