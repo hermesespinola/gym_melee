@@ -54,14 +54,12 @@ env = gym_melee.MeleeEnv(stage, controller_type=controller_type,
 # The ai player
 player = gym_melee.RLPlayer(character, env.get_ai_controller(), debug=debug)
 
-# Game loop
-# TODO: Guardar datos en mongo
 client = MongoClient('mongodb://hermes:hermes@info.gda.itesm.mx:27017/melee')
 db = client['melee']
 collection = db['games']
 
-env.start('/run/media/andres/TI10701100B/Things/ROMs & ISOs/Super Smash Bros. Melee (v1.02).iso')
-# env.start('Super Smash Bros. Melee (v1.02).iso')
+# env.start('/run/media/andres/TI10701100B/Things/ROMs & ISOs/Super Smash Bros. Melee (v1.02).iso')
+env.start('Super Smash Bros. Melee (v1.02).iso')
 
 from datetime import datetime
 
@@ -105,6 +103,7 @@ buffer_p2 = {
 
 plays = []
 
+# Game loop
 step = env.step(player)
 while step.gamestate.menu_state == melee.enums.Menu.IN_GAME:
     buffer_p1['p1']['frame'].append(step.opponent.todict())
@@ -144,9 +143,6 @@ while step.gamestate.menu_state == melee.enums.Menu.IN_GAME:
             }
         }
     step = env.step(player)
-    # if step.opponent.is_attacking:
-        # print ("Attacking")
-    # print (step.opponent.hitlag_left, step.opponent.hitstun_left)
 
 winner = plays[-1]['flip']
 for p in plays:
@@ -156,11 +152,6 @@ for p in plays:
         p['winner'] = not winner
 print('Saving...')
 [print ('Saved:', collection.insert_one(p).inserted_id) for p in plays]
-# mongo_id = collection.insert_one(game)
-# collection.update_one({'_id': mongo_id.inserted_id}, {"$set": {
-#     'p2.frame': p2_frame
-# }}, upsert=False)
-print('Saved.')
 
 while True:
     env.step(player)
