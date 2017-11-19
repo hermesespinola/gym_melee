@@ -1,7 +1,7 @@
 # Gym Melee
 Gym melee is a tool that helps melee players improve their playing based upon the analysis of their games.
 
-## Installation (only linux)
+## Installation (linux only)
 - Clone this version of dolphin from @altf4: https://github.com/altf4/dolphin/tree/memorywatcher-rebased. 
 - Checkout to branch *memorywatcher-rebased*.
 - Compile and install, following the instructions in the emulator's repository.
